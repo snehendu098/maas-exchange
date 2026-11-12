@@ -18,8 +18,10 @@ gen:
 	cd proto && $(BUF) generate
 	cd engine && cargo build -p proto
 
+# cargo near sets cfg(near); plain cargo wasm uses offchain fallbacks
 wasm:
-	cd contracts && cargo build --target wasm32-unknown-unknown --release
+	cd contracts && for c in perp-exchange delta-vault; do \
+	  cargo near build non-reproducible-wasm --no-abi --manifest-path $$c/Cargo.toml --out-dir target/near || exit 1; done
 
 # sub-accounts + deploy + init, see infra/deploy/near.sh
 deploy-near: wasm

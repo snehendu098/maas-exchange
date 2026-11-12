@@ -8,7 +8,7 @@ cd "$(dirname "$0")/../.."
 NET=${NEAR_NETWORK:-testnet}
 MASTER=${NEAR_MASTER_ACCOUNT:?set NEAR_MASTER_ACCOUNT (funded, key in keychain)}
 USDC=${USDC_CONTRACT:?set USDC_CONTRACT}
-WASM_DIR=${WASM_DIR:-contracts/target/wasm32-unknown-unknown/release}
+WASM_DIR=${WASM_DIR:-contracts/target/near}
 EXCHANGE=${EXCHANGE_CONTRACT:-exchange.$MASTER}
 VAULT=${VAULT_CONTRACT:-vault.$MASTER}
 OPERATOR=${OPERATOR_ACCOUNT_ID:-$MASTER}
