@@ -8,7 +8,7 @@ option go_package = "maas/backend/gen/perp/v1;perpv1";
 message BalanceUpdate {
   string trader = 1;
   string collateral = 2;
-  uint64 block_number = 3;
+  uint64 block_height = 3;
   uint32 log_index = 4;
 }
 
@@ -18,7 +18,7 @@ message PositionUpdate {
   uint32 market = 2;
   string size = 3;
   string entry_notional = 4;
-  uint64 block_number = 5;
+  uint64 block_height = 5;
   uint32 log_index = 6;
 }
 
@@ -45,9 +45,8 @@ message FillRef {
 // subject: engine.in.settle
 message SettleResult {
   string batch_id = 1;
-  // tx hash, base58
-  string tx_hash = 2;
+  string tx_hash = 2; // base58
   repeated FillRef settled = 3;
   repeated FillRef failed = 4;
-  uint64 block_number = 5; // tx block; engine skips fills chain already reflects
+  uint64 block_height = 5; // final block; engine skips fills chain already reflects
 }

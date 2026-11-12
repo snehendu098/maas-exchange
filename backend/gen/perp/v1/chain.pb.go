@@ -26,7 +26,7 @@ type BalanceUpdate struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Trader        string                 `protobuf:"bytes,1,opt,name=trader,proto3" json:"trader,omitempty"`
 	Collateral    string                 `protobuf:"bytes,2,opt,name=collateral,proto3" json:"collateral,omitempty"`
-	BlockNumber   uint64                 `protobuf:"varint,3,opt,name=block_number,json=blockNumber,proto3" json:"block_number,omitempty"`
+	BlockHeight   uint64                 `protobuf:"varint,3,opt,name=block_height,json=blockHeight,proto3" json:"block_height,omitempty"`
 	LogIndex      uint32                 `protobuf:"varint,4,opt,name=log_index,json=logIndex,proto3" json:"log_index,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -76,9 +76,9 @@ func (x *BalanceUpdate) GetCollateral() string {
 	return ""
 }
 
-func (x *BalanceUpdate) GetBlockNumber() uint64 {
+func (x *BalanceUpdate) GetBlockHeight() uint64 {
 	if x != nil {
-		return x.BlockNumber
+		return x.BlockHeight
 	}
 	return 0
 }
@@ -97,7 +97,7 @@ type PositionUpdate struct {
 	Market        uint32                 `protobuf:"varint,2,opt,name=market,proto3" json:"market,omitempty"`
 	Size          string                 `protobuf:"bytes,3,opt,name=size,proto3" json:"size,omitempty"`
 	EntryNotional string                 `protobuf:"bytes,4,opt,name=entry_notional,json=entryNotional,proto3" json:"entry_notional,omitempty"`
-	BlockNumber   uint64                 `protobuf:"varint,5,opt,name=block_number,json=blockNumber,proto3" json:"block_number,omitempty"`
+	BlockHeight   uint64                 `protobuf:"varint,5,opt,name=block_height,json=blockHeight,proto3" json:"block_height,omitempty"`
 	LogIndex      uint32                 `protobuf:"varint,6,opt,name=log_index,json=logIndex,proto3" json:"log_index,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -161,9 +161,9 @@ func (x *PositionUpdate) GetEntryNotional() string {
 	return ""
 }
 
-func (x *PositionUpdate) GetBlockNumber() uint64 {
+func (x *PositionUpdate) GetBlockHeight() uint64 {
 	if x != nil {
-		return x.BlockNumber
+		return x.BlockHeight
 	}
 	return 0
 }
@@ -381,13 +381,12 @@ func (x *FillRef) GetTradeId() uint64 {
 
 // subject: engine.in.settle
 type SettleResult struct {
-	state   protoimpl.MessageState `protogen:"open.v1"`
-	BatchId string                 `protobuf:"bytes,1,opt,name=batch_id,json=batchId,proto3" json:"batch_id,omitempty"`
-	// tx hash, base58
-	TxHash        string     `protobuf:"bytes,2,opt,name=tx_hash,json=txHash,proto3" json:"tx_hash,omitempty"`
-	Settled       []*FillRef `protobuf:"bytes,3,rep,name=settled,proto3" json:"settled,omitempty"`
-	Failed        []*FillRef `protobuf:"bytes,4,rep,name=failed,proto3" json:"failed,omitempty"`
-	BlockNumber   uint64     `protobuf:"varint,5,opt,name=block_number,json=blockNumber,proto3" json:"block_number,omitempty"` // tx block; engine skips fills chain already reflects
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	BatchId       string                 `protobuf:"bytes,1,opt,name=batch_id,json=batchId,proto3" json:"batch_id,omitempty"`
+	TxHash        string                 `protobuf:"bytes,2,opt,name=tx_hash,json=txHash,proto3" json:"tx_hash,omitempty"` // base58
+	Settled       []*FillRef             `protobuf:"bytes,3,rep,name=settled,proto3" json:"settled,omitempty"`
+	Failed        []*FillRef             `protobuf:"bytes,4,rep,name=failed,proto3" json:"failed,omitempty"`
+	BlockHeight   uint64                 `protobuf:"varint,5,opt,name=block_height,json=blockHeight,proto3" json:"block_height,omitempty"` // final block; engine skips fills chain already reflects
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -450,9 +449,9 @@ func (x *SettleResult) GetFailed() []*FillRef {
 	return nil
 }
 
-func (x *SettleResult) GetBlockNumber() uint64 {
+func (x *SettleResult) GetBlockHeight() uint64 {
 	if x != nil {
-		return x.BlockNumber
+		return x.BlockHeight
 	}
 	return 0
 }
@@ -467,14 +466,14 @@ const file_perp_v1_chain_proto_rawDesc = "" +
 	"\n" +
 	"collateral\x18\x02 \x01(\tR\n" +
 	"collateral\x12!\n" +
-	"\fblock_number\x18\x03 \x01(\x04R\vblockNumber\x12\x1b\n" +
+	"\fblock_height\x18\x03 \x01(\x04R\vblockHeight\x12\x1b\n" +
 	"\tlog_index\x18\x04 \x01(\rR\blogIndex\"\xbb\x01\n" +
 	"\x0ePositionUpdate\x12\x16\n" +
 	"\x06trader\x18\x01 \x01(\tR\x06trader\x12\x16\n" +
 	"\x06market\x18\x02 \x01(\rR\x06market\x12\x12\n" +
 	"\x04size\x18\x03 \x01(\tR\x04size\x12%\n" +
 	"\x0eentry_notional\x18\x04 \x01(\tR\rentryNotional\x12!\n" +
-	"\fblock_number\x18\x05 \x01(\x04R\vblockNumber\x12\x1b\n" +
+	"\fblock_height\x18\x05 \x01(\x04R\vblockHeight\x12\x1b\n" +
 	"\tlog_index\x18\x06 \x01(\rR\blogIndex\"9\n" +
 	"\tMarkPrice\x12\x16\n" +
 	"\x06market\x18\x01 \x01(\rR\x06market\x12\x14\n" +
@@ -492,7 +491,7 @@ const file_perp_v1_chain_proto_rawDesc = "" +
 	"\atx_hash\x18\x02 \x01(\tR\x06txHash\x12*\n" +
 	"\asettled\x18\x03 \x03(\v2\x10.perp.v1.FillRefR\asettled\x12(\n" +
 	"\x06failed\x18\x04 \x03(\v2\x10.perp.v1.FillRefR\x06failed\x12!\n" +
-	"\fblock_number\x18\x05 \x01(\x04R\vblockNumberB!Z\x1fmaas/backend/gen/perp/v1;perpv1b\x06proto3"
+	"\fblock_height\x18\x05 \x01(\x04R\vblockHeightB!Z\x1fmaas/backend/gen/perp/v1;perpv1b\x06proto3"
 
 var (
 	file_perp_v1_chain_proto_rawDescOnce sync.Once
