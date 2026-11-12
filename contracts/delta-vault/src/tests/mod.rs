@@ -7,6 +7,7 @@ use near_sdk::{testing_env, AccountId, NearToken, PromiseResult, RuntimeFeesConf
 
 use crate::*;
 
+mod keeper;
 mod queue;
 
 pub const T0: u64 = 1_700_000_000_000;

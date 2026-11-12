@@ -11,7 +11,7 @@ const GAS_CB: Gas = Gas::from_tgas(10);
 
 #[near]
 impl DeltaVault {
-    /// Instant part paid from unreserved idle now, rest escrowed + queued. id 0 = nothing queued.
+    /// Instant part paid from unreserved idle now, rest escrowed + queued.
     #[payable]
     pub fn request_redeem(&mut self, shares: U128) -> RedeemResult {
         assert_one_yocto();
@@ -37,7 +37,7 @@ impl DeltaVault {
         let rest = shares - instant;
         if rest == 0 {
             return RedeemResult {
-                id: 0,
+                id: None,
                 assets: assets.into(),
             };
         }
@@ -58,7 +58,7 @@ impl DeltaVault {
             json!({"id": id, "owner": a, "shares": rest.to_string()}),
         );
         RedeemResult {
-            id,
+            id: Some(id),
             assets: assets.into(),
         }
     }
