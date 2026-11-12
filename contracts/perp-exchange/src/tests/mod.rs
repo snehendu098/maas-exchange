@@ -5,6 +5,7 @@ use near_sdk::{env, testing_env, AccountId, NearToken, PromiseResult, PublicKey,
 
 use crate::*;
 
+mod risk;
 mod settle;
 
 pub const BTC: u32 = 0;
