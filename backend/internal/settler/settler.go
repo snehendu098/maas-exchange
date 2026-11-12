@@ -267,7 +267,7 @@ func (s *Settler) reconcile(ctx context.Context) error {
 
 // publish tells the engine which fills settled or failed, then marks the batch done.
 func (s *Settler) publish(ctx context.Context, b *batch) error {
-	res := &perpv1.SettleResult{BatchId: b.ID, BlockNumber: b.Block, TxHash: b.TxHash}
+	res := &perpv1.SettleResult{BatchId: b.ID, BlockHeight: b.Block, TxHash: b.TxHash}
 	for _, r := range b.Settled {
 		res.Settled = append(res.Settled, &perpv1.FillRef{Market: r.Market, TradeId: r.Trade})
 	}

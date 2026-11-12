@@ -1,11 +1,9 @@
 package settler
 
 import (
-	"crypto/ed25519"
 	"encoding/base64"
 
 	perpv1 "maas/backend/gen/perp/v1"
-	"maas/backend/internal/platform/near"
 	"maas/backend/internal/platform/sign"
 )
 
@@ -25,8 +23,8 @@ type Fill struct {
 func toFill(f *perpv1.Fill, maker, taker *perpv1.Order) Fill {
 	return Fill{
 		Maker: sign.FromProto(maker), Taker: sign.FromProto(taker),
-		MakerKey: near.PublicKeyString(ed25519.PublicKey(maker.PublicKey)), MakerSig: base64.StdEncoding.EncodeToString(maker.Signature),
-		TakerKey: near.PublicKeyString(ed25519.PublicKey(taker.PublicKey)), TakerSig: base64.StdEncoding.EncodeToString(taker.Signature),
+		MakerKey: maker.PublicKey, MakerSig: base64.StdEncoding.EncodeToString(maker.Signature),
+		TakerKey: taker.PublicKey, TakerSig: base64.StdEncoding.EncodeToString(taker.Signature),
 		Price: f.Price, Size: f.Size,
 	}
 }
