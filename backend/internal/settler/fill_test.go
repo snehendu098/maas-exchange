@@ -11,9 +11,9 @@ import (
 
 func TestToFill(t *testing.T) {
 	mk := &perpv1.Order{Trader: "maker.testnet", Market: 2, Side: perpv1.Side_SIDE_SELL, Price: 40e6, Size: 3e8, Nonce: 7, ExpiryMs: 99,
-		Signature: make([]byte, 64), PublicKey: make([]byte, 32)}
+		Signature: make([]byte, 64), PublicKey: "ed25519:11111111111111111111111111111111"}
 	tk := &perpv1.Order{Trader: "taker.testnet", Market: 2, Side: perpv1.Side_SIDE_BUY, Price: 41e6, Size: 1e8, ReduceOnly: true,
-		Signature: []byte{1}, PublicKey: make([]byte, 32)}
+		Signature: []byte{1}, PublicKey: "ed25519:11111111111111111111111111111111"}
 	f := toFill(&perpv1.Fill{Market: 2, TradeId: 5, Price: 40e6, Size: 1e8}, mk, tk)
 	if f.Maker.Trader != "maker.testnet" || f.Maker.MarketID != 2 || f.Maker.IsBuy || f.Maker.Price != 40e6 ||
 		f.Maker.Size != 3e8 || f.Maker.Nonce != 7 || f.Maker.ExpiryMs != 99 || f.Maker.ReduceOnly {

@@ -191,8 +191,8 @@ type Order struct {
 	OrderHash []byte `protobuf:"bytes,12,opt,name=order_hash,json=orderHash,proto3" json:"order_hash,omitempty"`
 	// 64-byte ed25519 sig over order_hash, verified by gateway
 	Signature []byte `protobuf:"bytes,13,opt,name=signature,proto3" json:"signature,omitempty"`
-	// 32-byte ed25519 trading key of trader
-	PublicKey     []byte `protobuf:"bytes,14,opt,name=public_key,json=publicKey,proto3" json:"public_key,omitempty"`
+	// signing trading key, "ed25519:<base58>"
+	PublicKey     string `protobuf:"bytes,14,opt,name=public_key,json=publicKey,proto3" json:"public_key,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -318,11 +318,11 @@ func (x *Order) GetSignature() []byte {
 	return nil
 }
 
-func (x *Order) GetPublicKey() []byte {
+func (x *Order) GetPublicKey() string {
 	if x != nil {
 		return x.PublicKey
 	}
-	return nil
+	return ""
 }
 
 // subject: engine.in.cancel.<SYMBOL>
@@ -409,7 +409,7 @@ const file_perp_v1_order_proto_rawDesc = "" +
 	"order_hash\x18\f \x01(\fR\torderHash\x12\x1c\n" +
 	"\tsignature\x18\r \x01(\fR\tsignature\x12\x1d\n" +
 	"\n" +
-	"public_key\x18\x0e \x01(\fR\tpublicKey\"S\n" +
+	"public_key\x18\x0e \x01(\tR\tpublicKey\"S\n" +
 	"\x06Cancel\x12\x16\n" +
 	"\x06trader\x18\x01 \x01(\tR\x06trader\x12\x16\n" +
 	"\x06market\x18\x02 \x01(\rR\x06market\x12\x19\n" +
