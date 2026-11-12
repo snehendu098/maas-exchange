@@ -1,0 +1,12 @@
+{
+  "durable_name": "engine",
+  "description": "single ordered engine consumer. engine recreates at boot with opt_start_seq = snapshot seq + 1",
+  "deliver_policy": "by_start_sequence",
+  "opt_start_seq": 1,
+  "ack_policy": "explicit",
+  "ack_wait": 30000000000,
+  "max_deliver": -1,
+  "max_ack_pending": 1,
+  "filter_subject": "engine.in.>",
+  "replay_policy": "instant"
+}

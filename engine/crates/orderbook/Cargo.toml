@@ -3,5 +3,9 @@ name = "orderbook"
 edition.workspace = true
 version.workspace = true
 
+[features]
+serde = ["dep:serde", "types/serde"]
+
 [dependencies]
 types.workspace = true
+serde = { workspace = true, optional = true }

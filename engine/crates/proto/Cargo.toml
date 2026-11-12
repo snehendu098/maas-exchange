@@ -1,0 +1,11 @@
+[package]
+name = "proto"
+edition.workspace = true
+version.workspace = true
+
+[dependencies]
+prost = "0.14"
+
+[build-dependencies]
+prost-build = "0.14"
+protox = "0.10"
