@@ -81,8 +81,12 @@ mod tests {
     #[test]
     fn v1_loads_and_v2_keeps_chain_blocks() {
         let mut e = Engine::new(Markets::new(default_markets()).unwrap());
-        e.risk
-            .set_position(AccountId::new("t1.testnet").unwrap(), MarketId(0), Position::default(), 42);
+        e.risk.set_position(
+            AccountId::new("t1.testnet").unwrap(),
+            MarketId(0),
+            Position::default(),
+            42,
+        );
         let v1 = bincode::serialize(&Snapshot {
             version: 1,
             engine: &e,
