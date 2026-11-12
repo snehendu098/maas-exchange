@@ -13,7 +13,7 @@
     transform: translateY(-12px);
   }
 }
-/* scroll progress hairline (scroll-driven; ignored where unsupported) */
+/* scroll progress hairline (scroll-driven; no-op on old browsers) */
 .header::after {
   content: "";
   position: absolute;

@@ -1,7 +1,7 @@
 import { cacheLife } from "next/cache";
 
 /**
- * Live Pyth prices. Server-only (imported by app/api/prices): HERMES_API_KEY never reaches the browser.
+ * Live Pyth prices. Server-only (used by app/api/prices): HERMES_API_KEY never reaches the browser.
  */
 export const FEEDS = {
   BTC: "e62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43",
