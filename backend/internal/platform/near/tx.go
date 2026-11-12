@@ -230,3 +230,11 @@ func Args(v any) []byte {
 	}
 	return b
 }
+
+// LastBlockHash is the block of the final receipt (where its events landed).
+func (o *Outcome) LastBlockHash() string {
+	if n := len(o.ReceiptsOutcome); n > 0 {
+		return o.ReceiptsOutcome[n-1].BlockHash
+	}
+	return o.TransactionOutcome.BlockHash
+}
