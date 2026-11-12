@@ -22,7 +22,7 @@ func TestOrderRoundTrip(t *testing.T) {
 		ClientId:   "c-1",
 		OrderHash:  make([]byte, 32),
 		Signature:  make([]byte, 64),
-		PublicKey:  make([]byte, 32),
+		PublicKey:  "ed25519:11111111111111111111111111111111",
 		ReduceOnly: true,
 	}
 	raw, err := proto.Marshal(in)
