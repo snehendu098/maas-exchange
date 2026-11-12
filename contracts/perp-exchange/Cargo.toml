@@ -1,0 +1,11 @@
+[package]
+name = "perp-exchange"
+edition.workspace = true
+version.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+near-sdk.workspace = true
+perp-math.workspace = true

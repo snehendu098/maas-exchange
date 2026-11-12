@@ -1,0 +1,13 @@
+services:
+  nats:
+    image: nats:2.10
+    command: ["-js"]
+    ports: ["4222:4222", "8222:8222"]
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: perp
+      POSTGRES_PASSWORD: perp
+      POSTGRES_DB: perp
+    ports: ["5432:5432"]

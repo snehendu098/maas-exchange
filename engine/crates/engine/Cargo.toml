@@ -1,0 +1,9 @@
+[package]
+name = "engine"
+edition.workspace = true
+version.workspace = true
+
+[dependencies]
+types.workspace = true
+orderbook.workspace = true
+risk.workspace = true

@@ -1,0 +1,19 @@
+[workspace]
+resolver = "2"
+members = ["perp-exchange", "delta-vault", "perp-math"]
+
+[workspace.package]
+edition = "2021"
+version = "0.1.0"
+
+[workspace.dependencies]
+near-sdk = "5"
+perp-math = { path = "perp-math" }
+
+[profile.release]
+codegen-units = 1
+opt-level = "z"
+lto = true
+debug = false
+panic = "abort"
+overflow-checks = true

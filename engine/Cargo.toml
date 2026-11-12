@@ -1,0 +1,12 @@
+[workspace]
+resolver = "2"
+members = ["crates/*"]
+
+[workspace.package]
+edition = "2021"
+version = "0.1.0"
+
+[workspace.dependencies]
+types = { path = "crates/types" }
+orderbook = { path = "crates/orderbook" }
+risk = { path = "crates/risk" }
