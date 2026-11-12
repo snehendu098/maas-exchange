@@ -88,7 +88,7 @@ func TestPlaceValid(t *testing.T) {
 		t.Fatalf("%d %v", code, out)
 	}
 	var o perpv1.Order
-	if p.subj != "engine.in.order.BTC" || proto.Unmarshal(p.data, &o) != nil || o.Price != 100_000e6 || len(o.Signature) != 64 || len(o.PublicKey) != 32 || o.Trader != trader {
+	if p.subj != "engine.in.order.BTC" || proto.Unmarshal(p.data, &o) != nil || o.Price != 100_000e6 || len(o.Signature) != 64 || o.PublicKey != pubKey || o.Trader != trader {
 		t.Fatalf("published %s %v", p.subj, &o)
 	}
 }

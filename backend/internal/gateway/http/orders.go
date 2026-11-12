@@ -118,7 +118,7 @@ func (s *Server) validate(r *http.Request, req *api.PlaceOrderRequest) (*perpv1.
 	return &perpv1.Order{
 		Trader: req.Trader, Market: m.ID, Side: perpv1.Side(side), Type: perpv1.OrderType(typ), Tif: perpv1.TimeInForce(tif),
 		Price: price, Size: size, ReduceOnly: req.ReduceOnly, Nonce: nonce, ExpiryMs: expiry, ClientId: req.ClientID,
-		OrderHash: hash[:], Signature: sig, PublicKey: pub,
+		OrderHash: hash[:], Signature: sig, PublicKey: near.PublicKeyString(pub),
 	}, m.Symbol, nil
 }
 
