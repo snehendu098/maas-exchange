@@ -8,6 +8,8 @@ version = "0.1.0"
 
 [workspace.dependencies]
 near-sdk = "5"
+near-contract-standards = "5"
+ed25519-dalek = "2"
 perp-math = { path = "perp-math" }
 
 [profile.release]
