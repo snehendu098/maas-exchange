@@ -1,0 +1,7 @@
+{
+  "markets": [
+    { "id": 0, "symbol": "BTC", "tick": 100000, "lot": 10000, "imrBps": 500, "mmrBps": 250, "feedId": "0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43" },
+    { "id": 1, "symbol": "ETH", "tick": 10000, "lot": 100000, "imrBps": 500, "mmrBps": 250, "feedId": "0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace" },
+    { "id": 2, "symbol": "NEAR", "tick": 1000, "lot": 1000000, "imrBps": 1000, "mmrBps": 500, "feedId": "0xc415de8d2eba7db216527dff4b60e8f3a5311c740dadb233e13e12547e226750" }
+  ]
+}
