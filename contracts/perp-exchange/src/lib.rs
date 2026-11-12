@@ -7,14 +7,18 @@ mod admin;
 mod collateral;
 mod events;
 mod ft_receiver;
+mod funding;
 mod keys;
 mod margin;
+mod orders;
 mod prices;
+mod settle;
 mod state;
 mod views;
 #[cfg(test)]
 mod tests;
 
+pub use orders::{Fill, Order};
 pub use state::*;
 
 pub const MAX_MARKETS: u32 = 4;
