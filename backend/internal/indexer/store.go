@@ -132,7 +132,7 @@ func snapshots(ctx context.Context, pool *pgxpool.Pool, k keys, blk uint64) ([]*
 	var bn uint64
 	var li uint32
 	if _, err := pgx.ForEachRow(rows, []any{&a, &c, &bn, &li}, func() error {
-		bal[a] = &perpv1.BalanceUpdate{Trader: a, Collateral: c, BlockNumber: bn, LogIndex: li}
+		bal[a] = &perpv1.BalanceUpdate{Trader: a, Collateral: c, BlockHeight: bn, LogIndex: li}
 		return nil
 	}); err != nil {
 		return nil, err
@@ -141,7 +141,7 @@ func snapshots(ctx context.Context, pool *pgxpool.Pool, k keys, blk uint64) ([]*
 	for _, a := range k.accts {
 		b := bal[a]
 		if b == nil {
-			b = &perpv1.BalanceUpdate{Trader: a, Collateral: "0", BlockNumber: blk}
+			b = &perpv1.BalanceUpdate{Trader: a, Collateral: "0", BlockHeight: blk}
 		}
 		out = append(out, &perpv1.ChainUpdate{Update: &perpv1.ChainUpdate_Balance{Balance: b}})
 	}
@@ -161,7 +161,7 @@ func snapshots(ctx context.Context, pool *pgxpool.Pool, k keys, blk uint64) ([]*
 	var m uint32
 	var size, entry string
 	if _, err := pgx.ForEachRow(rows, []any{&a, &m, &size, &entry, &bn, &li}, func() error {
-		pos[posKey{a, m}] = &perpv1.PositionUpdate{Trader: a, Market: m, Size: size, EntryNotional: entry, BlockNumber: bn, LogIndex: li}
+		pos[posKey{a, m}] = &perpv1.PositionUpdate{Trader: a, Market: m, Size: size, EntryNotional: entry, BlockHeight: bn, LogIndex: li}
 		return nil
 	}); err != nil {
 		return nil, err
@@ -169,7 +169,7 @@ func snapshots(ctx context.Context, pool *pgxpool.Pool, k keys, blk uint64) ([]*
 	for _, p := range k.pos {
 		up := pos[p]
 		if up == nil {
-			up = &perpv1.PositionUpdate{Trader: p.account, Market: p.market, Size: "0", EntryNotional: "0", BlockNumber: blk}
+			up = &perpv1.PositionUpdate{Trader: p.account, Market: p.market, Size: "0", EntryNotional: "0", BlockHeight: blk}
 		}
 		out = append(out, &perpv1.ChainUpdate{Update: &perpv1.ChainUpdate_Position{Position: up}})
 	}
