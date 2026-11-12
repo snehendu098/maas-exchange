@@ -55,7 +55,10 @@ impl PerpExchange {
         assert_eq!(env::predecessor_account_id(), order.trader, "not trader");
         let h = hash(&order);
         self.cancelled.insert(h);
-        emit("order_cancelled", json!({"trader": order.trader, "order_hash": to_hex(&h)}));
+        emit(
+            "order_cancelled",
+            json!({"trader": order.trader, "order_hash": to_hex(&h)}),
+        );
     }
 
     pub fn order_hash(&self, order: Order) -> String {
@@ -63,7 +66,12 @@ impl PerpExchange {
     }
 
     pub fn filled(&self, order_hash: String) -> U128 {
-        U128(self.filled.get(&from_hex(&order_hash)).copied().unwrap_or(0))
+        U128(
+            self.filled
+                .get(&from_hex(&order_hash))
+                .copied()
+                .unwrap_or(0),
+        )
     }
 
     pub fn cancelled(&self, order_hash: String) -> bool {
@@ -73,11 +81,25 @@ impl PerpExchange {
 
 impl PerpExchange {
     /// Validates order + sig, books fill size. Returns order hash.
-    pub(crate) fn use_order(&mut self, o: &Order, key: &PublicKey, sig: &[u8], price: u128, size: u128) -> CryptoHash {
+    pub(crate) fn use_order(
+        &mut self,
+        o: &Order,
+        key: &PublicKey,
+        sig: &[u8],
+        price: u128,
+        size: u128,
+    ) -> CryptoHash {
         assert!(env::block_timestamp_ms() <= o.expiry_ms, "expired");
         let h = hash(o);
         assert!(!self.cancelled.contains(&h), "cancelled");
-        assert!(if o.is_buy { price <= o.price.0 } else { price >= o.price.0 }, "worse than limit");
+        assert!(
+            if o.is_buy {
+                price <= o.price.0
+            } else {
+                price >= o.price.0
+            },
+            "worse than limit"
+        );
         let nf = self.filled.get(&h).copied().unwrap_or(0) + size;
         assert!(nf <= o.size.0, "overfill");
         assert!(self.has_key(&o.trader, key), "unknown key");

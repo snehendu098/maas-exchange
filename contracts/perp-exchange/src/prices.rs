@@ -14,11 +14,24 @@ impl PerpExchange {
             self.mkt(market_id);
             assert!(price.0 > 0, "bad price");
             assert!(publish_ms <= env::block_timestamp_ms(), "future price");
-            if self.prices.get(&market_id).is_some_and(|p| p.publish_ms >= publish_ms) {
+            if self
+                .prices
+                .get(&market_id)
+                .is_some_and(|p| p.publish_ms >= publish_ms)
+            {
                 continue;
             }
-            self.prices.insert(market_id, PricePoint { price: price.0, publish_ms });
-            emit("price_pushed", json!({"market_id": market_id, "price": price, "publish_ms": publish_ms}));
+            self.prices.insert(
+                market_id,
+                PricePoint {
+                    price: price.0,
+                    publish_ms,
+                },
+            );
+            emit(
+                "price_pushed",
+                json!({"market_id": market_id, "price": price, "publish_ms": publish_ms}),
+            );
         }
     }
 
@@ -31,7 +44,10 @@ impl PerpExchange {
 impl PerpExchange {
     pub(crate) fn mark(&self, market_id: u32) -> u128 {
         let p = self.prices.get(&market_id).expect("no price");
-        assert!(env::block_timestamp_ms() <= p.publish_ms + self.max_price_age_ms, "stale price");
+        assert!(
+            env::block_timestamp_ms() <= p.publish_ms + self.max_price_age_ms,
+            "stale price"
+        );
         p.price
     }
 }

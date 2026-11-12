@@ -10,7 +10,10 @@ impl PerpExchange {
     #[payable]
     pub fn add_trading_key(&mut self, public_key: PublicKey) {
         assert_one_yocto();
-        assert!(public_key.curve_type() == CurveType::ED25519, "ed25519 only");
+        assert!(
+            public_key.curve_type() == CurveType::ED25519,
+            "ed25519 only"
+        );
         let a = env::predecessor_account_id();
         let mut keys = self.trading_keys.get(&a).cloned().unwrap_or_default();
         assert!(!keys.contains(&public_key), "key exists");
@@ -29,7 +32,10 @@ impl PerpExchange {
     }
 
     pub fn trading_keys(&self, account_id: AccountId) -> Vec<PublicKey> {
-        self.trading_keys.get(&account_id).cloned().unwrap_or_default()
+        self.trading_keys
+            .get(&account_id)
+            .cloned()
+            .unwrap_or_default()
     }
 }
 

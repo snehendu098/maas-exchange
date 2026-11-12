@@ -20,7 +20,10 @@ impl PerpExchange {
     /// Total initial + maintenance margin across markets at mark.
     pub fn margins(&self, account_id: AccountId) -> Margins {
         let (_, im, mm) = self.health(&account_id);
-        Margins { im: im.into(), mm: mm.into() }
+        Margins {
+            im: im.into(),
+            mm: mm.into(),
+        }
     }
 
     pub fn market(&self, market_id: u32) -> Option<Market> {

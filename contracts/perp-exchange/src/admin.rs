@@ -20,7 +20,10 @@ impl PerpExchange {
                 && market.max_leverage as u128 == BPS / imr,
             "bad market"
         );
-        emit("market_set", json!({"market_id": market_id, "market": market}));
+        emit(
+            "market_set",
+            json!({"market_id": market_id, "market": market}),
+        );
         self.markets.insert(market_id, market);
     }
 

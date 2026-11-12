@@ -1,7 +1,9 @@
 use near_contract_standards::fungible_token::receiver::FungibleTokenReceiver;
 use near_sdk::json_types::{Base64VecU8, U128};
 use near_sdk::test_utils::VMContextBuilder;
-use near_sdk::{env, testing_env, AccountId, NearToken, PromiseResult, PublicKey, RuntimeFeesConfig};
+use near_sdk::{
+    env, testing_env, AccountId, NearToken, PromiseResult, PublicKey, RuntimeFeesConfig,
+};
 
 use crate::*;
 
@@ -25,7 +27,11 @@ pub struct Env {
 
 impl Env {
     pub fn new() -> Self {
-        let mut e = Env { ex: unsafe_new(), now_ms: T0, nonce: 0 };
+        let mut e = Env {
+            ex: unsafe_new(),
+            now_ms: T0,
+            nonce: 0,
+        };
         e.call("owner", 0);
         e.ex.set_market(BTC, btc());
         e.set_price(P);
@@ -75,7 +81,14 @@ impl Env {
     }
 
     /// taker trades `size` at `price` vs maker at same limit.
-    pub fn trade_as(&mut self, taker: &str, maker: &str, taker_buys: bool, price: u128, size: u128) {
+    pub fn trade_as(
+        &mut self,
+        taker: &str,
+        maker: &str,
+        taker_buys: bool,
+        price: u128,
+        size: u128,
+    ) {
         let mk = self.order(maker, !taker_buys, price, size);
         let tk = self.order(taker, taker_buys, price, size);
         let f = self.mk_fill(mk, tk, price, size);
@@ -105,12 +118,20 @@ impl Env {
             .attached_deposit(NearToken::from_yoctonear(yocto))
             .block_timestamp(self.now_ms * 1_000_000)
             .build();
-        testing_env!(ctx, near_sdk::test_vm_config(), RuntimeFeesConfig::test(), Default::default(), results);
+        testing_env!(
+            ctx,
+            near_sdk::test_vm_config(),
+            RuntimeFeesConfig::test(),
+            Default::default(),
+            results
+        );
     }
 
     pub fn deposit(&mut self, who: &str, amount: u128) {
         self.call("usdc", 0);
-        let _ = self.ex.ft_on_transfer(acc(who), U128(amount), String::new());
+        let _ = self
+            .ex
+            .ft_on_transfer(acc(who), U128(amount), String::new());
     }
 
     pub fn set_price(&mut self, price: u128) {
@@ -137,8 +158,18 @@ impl Env {
 }
 
 fn unsafe_new() -> PerpExchange {
-    testing_env!(VMContextBuilder::new().current_account_id(acc("exchange")).build());
-    PerpExchange::new(acc("owner"), acc("operator"), acc("keeper"), acc("fees"), acc("ins"), acc("usdc"), 60_000)
+    testing_env!(VMContextBuilder::new()
+        .current_account_id(acc("exchange"))
+        .build());
+    PerpExchange::new(
+        acc("owner"),
+        acc("operator"),
+        acc("keeper"),
+        acc("fees"),
+        acc("ins"),
+        acc("usdc"),
+        60_000,
+    )
 }
 
 /// 20x, mmr 2.5%, maker 2bps, taker 5bps.
@@ -159,7 +190,11 @@ fn signer(who: &str) -> ed25519_dalek::SigningKey {
 }
 
 pub fn pubkey(who: &str) -> PublicKey {
-    PublicKey::from_parts(near_sdk::CurveType::ED25519, signer(who).verifying_key().to_bytes().to_vec()).unwrap()
+    PublicKey::from_parts(
+        near_sdk::CurveType::ED25519,
+        signer(who).verifying_key().to_bytes().to_vec(),
+    )
+    .unwrap()
 }
 
 pub fn sign(who: &str, o: &Order) -> Base64VecU8 {
@@ -168,7 +203,9 @@ pub fn sign(who: &str, o: &Order) -> Base64VecU8 {
 }
 
 pub fn ed_key() -> PublicKey {
-    "ed25519:6E8sCci9badyRkXb3JoRpBj5p8C6Tw41ELDZoiihKEtp".parse().unwrap()
+    "ed25519:6E8sCci9badyRkXb3JoRpBj5p8C6Tw41ELDZoiihKEtp"
+        .parse()
+        .unwrap()
 }
 
 #[test]
@@ -176,7 +213,8 @@ fn deposit_credits_sender_or_named_account() {
     let mut e = Env::new();
     assert_eq!(e.coll("alice"), 100_000_000_000);
     e.call("usdc", 0);
-    let _ = e.ex.ft_on_transfer(acc("bob"), U128(5), r#"{"account_id":"carol"}"#.into());
+    let _ =
+        e.ex.ft_on_transfer(acc("bob"), U128(5), r#"{"account_id":"carol"}"#.into());
     assert_eq!(e.coll("carol"), 5);
 }
 
@@ -195,7 +233,11 @@ fn withdraw_debits_and_refunds_on_failure() {
     let _ = e.ex.withdraw(U128(40_000_000_000));
     assert_eq!(e.coll("alice"), 60_000_000_000);
     e.call_with("exchange", 0, vec![PromiseResult::Failed]);
-    assert!(!e.ex.on_withdraw(acc("alice"), U128(40_000_000_000), Err(near_sdk::PromiseError::Failed)));
+    assert!(!e.ex.on_withdraw(
+        acc("alice"),
+        U128(40_000_000_000),
+        Err(near_sdk::PromiseError::Failed)
+    ));
     assert_eq!(e.coll("alice"), 100_000_000_000);
 }
 
@@ -220,7 +262,10 @@ fn trading_keys_add_remove() {
     let mut e = Env::new();
     e.call("alice", 1);
     e.ex.add_trading_key(ed_key());
-    assert_eq!(e.ex.trading_keys(acc("alice")), vec![pubkey("alice"), ed_key()]);
+    assert_eq!(
+        e.ex.trading_keys(acc("alice")),
+        vec![pubkey("alice"), ed_key()]
+    );
     e.ex.remove_trading_key(ed_key());
     assert_eq!(e.ex.trading_keys(acc("alice")), vec![pubkey("alice")]);
 }
@@ -264,7 +309,13 @@ fn push_prices_skips_older() {
 fn set_market_validates() {
     let mut e = Env::new();
     e.call("owner", 0);
-    e.ex.set_market(1, Market { max_leverage: 5, ..btc() });
+    e.ex.set_market(
+        1,
+        Market {
+            max_leverage: 5,
+            ..btc()
+        },
+    );
 }
 
 #[test]

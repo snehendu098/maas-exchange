@@ -14,7 +14,10 @@ fn funding_accrual_zero_sum() {
     e.exempt(&["alice", "bob"]);
     e.trade("alice", true, P, ONE);
     fund_rate(&mut e, 1_000_000_000_000_000); // 0.1% at 100k
-    assert_eq!(e.ex.funding_index(BTC).0, 100_000_000_000_000_000_000_000_000);
+    assert_eq!(
+        e.ex.funding_index(BTC).0,
+        100_000_000_000_000_000_000_000_000
+    );
     assert_eq!(e.equity("alice"), OK - 100_000_000);
     assert_eq!(e.equity("bob"), OK + 100_000_000);
     e.trade("alice", false, P, ONE);
@@ -79,7 +82,10 @@ fn liquidate_penalty_to_insurance() {
     e.set_price(97_000_000_000); // equity 2100 < mm 2425
     liq(&mut e, "carol");
     assert_eq!(e.size("carol"), 0);
-    assert_eq!((e.size("ins"), e.entry("ins")), (ONE as i128, 97_000_000_000));
+    assert_eq!(
+        (e.size("ins"), e.entry("ins")),
+        (ONE as i128, 97_000_000_000)
+    );
     let penalty = 1_212_500_000; // ceil(97000e6 * 125 / 1e4)
     assert_eq!(e.coll("carol"), 2_100_000_000 - penalty);
     assert_eq!(e.coll("ins"), penalty);

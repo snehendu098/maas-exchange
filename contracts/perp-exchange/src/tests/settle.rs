@@ -7,7 +7,10 @@ fn open_close_pnl() {
     let mut e = Env::new();
     e.exempt(&["alice", "bob"]);
     e.trade("alice", true, P, ONE);
-    assert_eq!((e.size("alice"), e.size("bob")), (ONE as i128, -(ONE as i128)));
+    assert_eq!(
+        (e.size("alice"), e.size("bob")),
+        (ONE as i128, -(ONE as i128))
+    );
     assert_eq!(e.entry("alice"), 100_000_000_000);
     e.set_price(110_000_000_000);
     assert_eq!(e.equity("alice"), 110_000_000_000);
@@ -25,7 +28,10 @@ fn partial_close_pnl() {
     e.trade("alice", true, P, ONE);
     e.trade("alice", false, 105_000_000_000, 40_000_000);
     assert_eq!(e.coll("alice"), 102_000_000_000);
-    assert_eq!((e.size("alice"), e.entry("alice")), (60_000_000, 60_000_000_000));
+    assert_eq!(
+        (e.size("alice"), e.entry("alice")),
+        (60_000_000, 60_000_000_000)
+    );
     assert_eq!(e.coll("bob"), 98_000_000_000);
 }
 
@@ -36,8 +42,14 @@ fn flip_pnl() {
     e.trade("alice", true, P, ONE);
     e.trade("alice", false, 90_000_000_000, 150_000_000);
     assert_eq!(e.coll("alice"), 90_000_000_000);
-    assert_eq!((e.size("alice"), e.entry("alice")), (-50_000_000, 45_000_000_000));
-    assert_eq!((e.size("bob"), e.entry("bob")), (50_000_000, 45_000_000_000));
+    assert_eq!(
+        (e.size("alice"), e.entry("alice")),
+        (-50_000_000, 45_000_000_000)
+    );
+    assert_eq!(
+        (e.size("bob"), e.entry("bob")),
+        (50_000_000, 45_000_000_000)
+    );
 }
 
 #[test]
@@ -78,11 +90,20 @@ fn settle_logs_events_in_order() {
     let names: Vec<String> = near_sdk::test_utils::get_logs()
         .iter()
         .map(|l| {
-            let v: near_sdk::serde_json::Value = near_sdk::serde_json::from_str(&l["EVENT_JSON:".len()..]).unwrap();
+            let v: near_sdk::serde_json::Value =
+                near_sdk::serde_json::from_str(&l["EVENT_JSON:".len()..]).unwrap();
             v["event"].as_str().unwrap().to_string()
         })
         .collect();
-    assert_eq!(names, ["position_updated", "position_updated", "collateral_updated", "traded"]);
+    assert_eq!(
+        names,
+        [
+            "position_updated",
+            "position_updated",
+            "collateral_updated",
+            "traded"
+        ]
+    );
 }
 
 #[test]
@@ -138,7 +159,10 @@ fn reduce_to_negative_needs_mm() {
 #[should_panic(expected = "bad signature")]
 fn reject_bad_sig() {
     let mut e = Env::new();
-    let (mk, tk) = (e.order("bob", false, P, ONE), e.order("alice", true, P, ONE));
+    let (mk, tk) = (
+        e.order("bob", false, P, ONE),
+        e.order("alice", true, P, ONE),
+    );
     let mut f = e.mk_fill(mk, tk, P, ONE);
     f.taker.price = U128(P + 100_000); // tampered after signing
     e.settle(f);
@@ -148,7 +172,10 @@ fn reject_bad_sig() {
 #[should_panic(expected = "unknown key")]
 fn reject_unregistered_key() {
     let mut e = Env::new();
-    let (mk, tk) = (e.order("bob", false, P, ONE), e.order("alice", true, P, ONE));
+    let (mk, tk) = (
+        e.order("bob", false, P, ONE),
+        e.order("alice", true, P, ONE),
+    );
     let mut f = e.mk_fill(mk, tk, P, ONE);
     f.taker_key = pubkey("bob");
     f.taker_sig = sign("bob", &f.taker);
@@ -159,7 +186,10 @@ fn reject_unregistered_key() {
 #[should_panic(expected = "overfill")]
 fn reject_overfill_and_replay() {
     let mut e = Env::new();
-    let (mk, tk) = (e.order("bob", false, P, ONE), e.order("alice", true, P, ONE));
+    let (mk, tk) = (
+        e.order("bob", false, P, ONE),
+        e.order("alice", true, P, ONE),
+    );
     let f = e.mk_fill(mk, tk, P, ONE / 2);
     e.settle(f.clone());
     e.settle(f.clone());
@@ -171,7 +201,10 @@ fn reject_overfill_and_replay() {
 #[should_panic(expected = "expired")]
 fn reject_expired() {
     let mut e = Env::new();
-    let (mk, tk) = (e.order("bob", false, P, ONE), e.order("alice", true, P, ONE));
+    let (mk, tk) = (
+        e.order("bob", false, P, ONE),
+        e.order("alice", true, P, ONE),
+    );
     let f = e.mk_fill(mk, tk, P, ONE);
     e.now_ms += 3_600_001;
     e.set_price(P);
@@ -182,7 +215,10 @@ fn reject_expired() {
 #[should_panic(expected = "cancelled")]
 fn reject_cancelled() {
     let mut e = Env::new();
-    let (mk, tk) = (e.order("bob", false, P, ONE), e.order("alice", true, P, ONE));
+    let (mk, tk) = (
+        e.order("bob", false, P, ONE),
+        e.order("alice", true, P, ONE),
+    );
     let f = e.mk_fill(mk, tk, P, ONE);
     e.call("alice", 0);
     e.ex.cancel(f.taker.clone());
@@ -203,7 +239,10 @@ fn cancel_only_trader() {
 #[should_panic(expected = "worse than limit")]
 fn reject_worse_than_limit() {
     let mut e = Env::new();
-    let (mk, tk) = (e.order("bob", false, P, ONE), e.order("alice", true, P, ONE));
+    let (mk, tk) = (
+        e.order("bob", false, P, ONE),
+        e.order("alice", true, P, ONE),
+    );
     let f = e.mk_fill(mk, tk, P + 100_000, ONE);
     e.settle(f);
 }
@@ -212,7 +251,10 @@ fn reject_worse_than_limit() {
 #[should_panic(expected = "market mismatch")]
 fn reject_market_mismatch() {
     let mut e = Env::new();
-    let (mut mk, tk) = (e.order("bob", false, P, ONE), e.order("alice", true, P, ONE));
+    let (mut mk, tk) = (
+        e.order("bob", false, P, ONE),
+        e.order("alice", true, P, ONE),
+    );
     mk.market_id = 1;
     let f = e.mk_fill(mk, tk, P, ONE);
     e.settle(f);
@@ -222,7 +264,10 @@ fn reject_market_mismatch() {
 #[should_panic(expected = "unknown market")]
 fn reject_unknown_market() {
     let mut e = Env::new();
-    let (mut mk, mut tk) = (e.order("bob", false, P, ONE), e.order("alice", true, P, ONE));
+    let (mut mk, mut tk) = (
+        e.order("bob", false, P, ONE),
+        e.order("alice", true, P, ONE),
+    );
     (mk.market_id, tk.market_id) = (3, 3);
     let f = e.mk_fill(mk, tk, P, ONE);
     e.settle(f);
@@ -232,7 +277,10 @@ fn reject_unknown_market() {
 #[should_panic(expected = "off tick")]
 fn reject_off_tick() {
     let mut e = Env::new();
-    let (mk, tk) = (e.order("bob", false, P, ONE), e.order("alice", true, P + 1, ONE));
+    let (mk, tk) = (
+        e.order("bob", false, P, ONE),
+        e.order("alice", true, P + 1, ONE),
+    );
     let f = e.mk_fill(mk, tk, P + 1, ONE);
     e.settle(f);
 }
@@ -241,7 +289,10 @@ fn reject_off_tick() {
 #[should_panic(expected = "off lot")]
 fn reject_off_lot() {
     let mut e = Env::new();
-    let (mk, tk) = (e.order("bob", false, P, ONE), e.order("alice", true, P, ONE));
+    let (mk, tk) = (
+        e.order("bob", false, P, ONE),
+        e.order("alice", true, P, ONE),
+    );
     let f = e.mk_fill(mk, tk, P, ONE - 1);
     e.settle(f);
 }
@@ -259,7 +310,10 @@ fn reject_same_side() {
 #[should_panic(expected = "self trade")]
 fn reject_self_trade() {
     let mut e = Env::new();
-    let (mk, tk) = (e.order("alice", false, P, ONE), e.order("alice", true, P, ONE));
+    let (mk, tk) = (
+        e.order("alice", false, P, ONE),
+        e.order("alice", true, P, ONE),
+    );
     let f = e.mk_fill(mk, tk, P, ONE);
     e.settle(f);
 }

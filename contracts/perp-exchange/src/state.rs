@@ -39,7 +39,11 @@ pub struct PositionView {
 
 impl From<Position> for PositionView {
     fn from(p: Position) -> Self {
-        Self { size: p.size.into(), entry_notional: p.entry_notional.into(), last_funding_index: p.last_funding_index.into() }
+        Self {
+            size: p.size.into(),
+            entry_notional: p.entry_notional.into(),
+            last_funding_index: p.last_funding_index.into(),
+        }
     }
 }
 

@@ -28,7 +28,12 @@ impl PerpExchange {
 impl PerpExchange {
     /// Charges pending funding into collateral. Payer and receiver both ceil toward +inf;
     /// exact remainder accrues as dust, whole wei swept to insurance. Zero-sum.
-    pub(crate) fn settle_funding(&mut self, a: &AccountId, market_id: u32, p: &mut Position) -> i128 {
+    pub(crate) fn settle_funding(
+        &mut self,
+        a: &AccountId,
+        market_id: u32,
+        p: &mut Position,
+    ) -> i128 {
         let idx = self.findex(market_id);
         let delta = idx - p.last_funding_index;
         p.last_funding_index = idx;
