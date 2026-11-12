@@ -1,3 +1,53 @@
 syntax = "proto3";
 
 package perp.v1;
+
+option go_package = "maas/backend/gen/perp/v1;perpv1";
+
+// onchain collateral, overwrites engine view. collateral = i128 string
+message BalanceUpdate {
+  string trader = 1;
+  string collateral = 2;
+  uint64 block_number = 3;
+  uint32 log_index = 4;
+}
+
+// onchain position, overwrites engine view. size = signed base 1e8, entry_notional = usdc u128
+message PositionUpdate {
+  string trader = 1;
+  uint32 market = 2;
+  string size = 3;
+  string entry_notional = 4;
+  uint64 block_number = 5;
+  uint32 log_index = 6;
+}
+
+// oracle mark used for upnl / margin
+message MarkPrice {
+  uint32 market = 1;
+  uint64 price = 2;
+}
+
+// subject: engine.in.chain
+message ChainUpdate {
+  oneof update {
+    BalanceUpdate balance = 1;
+    PositionUpdate position = 2;
+    MarkPrice mark = 3;
+  }
+}
+
+message FillRef {
+  uint32 market = 1;
+  uint64 trade_id = 2;
+}
+
+// subject: engine.in.settle
+message SettleResult {
+  string batch_id = 1;
+  // tx hash, base58
+  string tx_hash = 2;
+  repeated FillRef settled = 3;
+  repeated FillRef failed = 4;
+  uint64 block_number = 5; // tx block; engine skips fills chain already reflects
+}
