@@ -5,7 +5,7 @@ package perp.v1;
 option go_package = "maas/backend/gen/perp/v1;perpv1";
 
 // units: price = usdc 1e6 per 1 base, size = base 1e8.
-// i128/u128 amounts = base-10 strings. trader = NEAR account id.
+// i128/u128 amounts = base-10 strings. trader = near account id.
 
 enum Side {
   SIDE_UNSPECIFIED = 0;
@@ -45,8 +45,8 @@ message Order {
   bytes order_hash = 12;
   // 64-byte ed25519 sig over order_hash, verified by gateway
   bytes signature = 13;
-  // 32-byte ed25519 trading key of trader
-  bytes public_key = 14;
+  // signing trading key, "ed25519:<base58>"
+  string public_key = 14;
 }
 
 // subject: engine.in.cancel.<SYMBOL>
