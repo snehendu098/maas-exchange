@@ -119,7 +119,7 @@ near contract deploy $VAULT use-file $W/delta_vault/delta_vault.wasm \
 
 Post-deploy (each a `call-function as-transaction`):
 - `$USDC storage_deposit {"account_id":"<EX>"}` and `{"account_id":"<VAULT>"}` (0.00125 NEAR each).
-- `$REF storage_deposit {"account_id":"<VAULT>"}` (0.1 NEAR), then from vault owner flow register Ref tokens: `$REF register_tokens {"token_ids":[USDC, wbtc, weth, wnear]}` signed by the vault account (1 yocto).
+- `$REF storage_deposit {"account_id":"<VAULT>"}` (0.1 NEAR, any payer). Ref adds token entries on first deposit/swap out; if your Ref build needs explicit `register_tokens`, sign it with the vault account's own key before removing it.
 - `$EX set_fee_exempt {"account_id":"<VAULT>","exempt":true}` (owner).
 - `$VAULT add_vault_trading_key {"public_key":"ed25519:..."}` (owner, 30 Tgas) with the keeper's signing key.
 - Fund vault account with NEAR: it pays 1 yocto per ft/Ref call and storage for share holders.
