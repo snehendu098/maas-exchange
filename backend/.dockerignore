@@ -1,0 +1,8 @@
+*
+!go.mod
+!go.sum
+!cmd/
+!gen/
+!internal/
+!migrations/
+**/*_test.go
