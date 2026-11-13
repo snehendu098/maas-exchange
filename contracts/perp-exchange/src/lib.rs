@@ -9,6 +9,7 @@ mod events;
 mod ft_receiver;
 mod funding;
 mod keys;
+mod liquidation;
 mod margin;
 mod orders;
 mod prices;
