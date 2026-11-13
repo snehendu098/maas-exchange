@@ -1,0 +1,138 @@
+{
+ "block": {
+  "header": {
+   "height": 100,
+   "hash": "HASH100",
+   "timestamp": 1700000000123456789
+  }
+ },
+ "shards": [
+  {
+   "shard_id": 0,
+   "receipt_execution_outcomes": [
+    {
+     "execution_outcome": {
+      "block_hash": "H",
+      "id": "r",
+      "outcome": {
+       "executor_id": "ex.testnet",
+       "logs": [
+        "hello",
+        "EVENT_JSON:{\"standard\": \"maas-exchange\", \"version\": \"1.0.0\", \"event\": \"deposited\", \"data\": [{\"account_id\": \"alice.testnet\", \"amount\": \"5000000\", \"collateral\": \"5000000\"}]}"
+       ],
+       "receipt_ids": [],
+       "status": {
+        "SuccessValue": ""
+       }
+      }
+     },
+     "receipt": {},
+     "tx_hash": "tx1"
+    },
+    {
+     "execution_outcome": {
+      "block_hash": "H",
+      "id": "r",
+      "outcome": {
+       "executor_id": "ex.testnet",
+       "logs": [
+        "EVENT_JSON:{\"standard\": \"maas-exchange\", \"version\": \"1.0.0\", \"event\": \"position_updated\", \"data\": [{\"account_id\": \"alice.testnet\", \"market_id\": 1, \"size\": \"-200000000\", \"entry_notional\": \"100000000\", \"funding_index\": \"9\", \"realized_pnl\": \"-1\", \"funding_paid\": \"2\", \"collateral\": \"-42\"}]}",
+        "EVENT_JSON:{\"standard\": \"maas-exchange\", \"version\": \"1.0.0\", \"event\": \"traded\", \"data\": [{\"market_id\": 1, \"maker_order_hash\": \"aa\", \"taker_order_hash\": \"bb\", \"maker\": \"alice.testnet\", \"taker\": \"bob.testnet\", \"taker_is_buy\": true, \"price\": \"50000000000\", \"size\": \"200000000\", \"maker_fee\": \"10\", \"taker_fee\": \"20\"}]}",
+        "EVENT_JSON:{\"standard\": \"maas-exchange\", \"version\": \"1.0.0\", \"event\": \"funding_updated\", \"data\": [{\"market_id\": 1, \"rate\": \"-3\", \"price\": \"7\", \"index\": \"11\"}]}",
+        "EVENT_JSON:{\"standard\": \"maas-exchange\", \"version\": \"1.0.0\", \"event\": \"market_set\", \"data\": [{\"market_id\": 1, \"market\": {\"tick_size\": \"1000000\", \"lot_size\": \"100000\", \"max_leverage\": 20, \"imr_bps\": 500, \"mmr_bps\": 250, \"maker_fee_bps\": 2, \"taker_fee_bps\": 5}}]}",
+        "EVENT_JSON:{\"standard\": \"maas-exchange\", \"version\": \"1.0.0\", \"event\": \"price_pushed\", \"data\": [{\"market_id\": 1, \"price\": \"7\", \"publish_ms\": 1}]}"
+       ],
+       "receipt_ids": [],
+       "status": {
+        "SuccessValue": ""
+       }
+      }
+     },
+     "receipt": {},
+     "tx_hash": "tx2"
+    }
+   ]
+  },
+  {
+   "shard_id": 1,
+   "receipt_execution_outcomes": [
+    {
+     "execution_outcome": {
+      "block_hash": "H",
+      "id": "r",
+      "outcome": {
+       "executor_id": "ex.testnet",
+       "logs": [
+        "EVENT_JSON:{\"standard\": \"maas-exchange\", \"version\": \"1.0.0\", \"event\": \"deposited\", \"data\": [{\"account_id\": \"eve.testnet\", \"amount\": \"1\", \"collateral\": \"1\"}]}"
+       ],
+       "receipt_ids": [],
+       "status": {
+        "Failure": {
+         "ActionError": {}
+        }
+       }
+      }
+     },
+     "receipt": {},
+     "tx_hash": "tx1"
+    },
+    {
+     "execution_outcome": {
+      "block_hash": "H",
+      "id": "r",
+      "outcome": {
+       "executor_id": "evil.testnet",
+       "logs": [
+        "EVENT_JSON:{\"standard\": \"maas-exchange\", \"version\": \"1.0.0\", \"event\": \"deposited\", \"data\": [{\"account_id\": \"eve.testnet\", \"amount\": \"1\", \"collateral\": \"1\"}]}"
+       ],
+       "receipt_ids": [],
+       "status": {
+        "SuccessValue": ""
+       }
+      }
+     },
+     "receipt": {},
+     "tx_hash": "tx1"
+    },
+    {
+     "execution_outcome": {
+      "block_hash": "H",
+      "id": "r",
+      "outcome": {
+       "executor_id": "vault.testnet",
+       "logs": [
+        "EVENT_JSON:{\"standard\": \"nep141\", \"version\": \"1.0.0\", \"event\": \"ft_mint\", \"data\": [{\"owner_id\": \"alice.testnet\", \"amount\": \"1\"}]}",
+        "EVENT_JSON:{\"standard\": \"maas-vault\", \"version\": \"1.0.0\", \"event\": \"deposited\", \"data\": [{\"account_id\": \"alice.testnet\", \"assets\": \"5\", \"shares\": \"5\"}]}"
+       ],
+       "receipt_ids": [],
+       "status": {
+        "SuccessValue": ""
+       }
+      }
+     },
+     "receipt": {},
+     "tx_hash": "tx3"
+    },
+    {
+     "execution_outcome": {
+      "block_hash": "H",
+      "id": "r",
+      "outcome": {
+       "executor_id": "ex.testnet",
+       "logs": [
+        "EVENT_JSON:{\"standard\": \"maas-exchange\", \"version\": \"1.0.0\", \"event\": \"order_cancelled\", \"data\": [{\"trader\": \"bob.testnet\", \"order_hash\": \"cc\"}]}",
+        "EVENT_JSON:{\"standard\": \"maas-exchange\", \"version\": \"1.0.0\", \"event\": \"liquidated\", \"data\": [{\"account_id\": \"bob.testnet\", \"market_id\": 1, \"liquidator\": \"keeper.testnet\", \"price\": \"7\", \"size\": \"1\", \"penalty\": \"2\", \"bad_debt\": \"0\"}]}"
+       ],
+       "receipt_ids": [],
+       "status": {
+        "SuccessValue": ""
+       }
+      }
+     },
+     "receipt": {},
+     "tx_hash": "tx4"
+    }
+   ]
+  }
+ ]
+}
