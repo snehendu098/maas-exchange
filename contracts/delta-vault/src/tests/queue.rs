@@ -59,7 +59,7 @@ fn redeem_instant_charges_fee() {
     assert_eq!(
         r,
         RedeemResult {
-            id: 0,
+            id: None,
             assets: U128(K - 1_000_000)
         }
     );
@@ -79,7 +79,7 @@ fn redeem_queues_rest_then_cancel_and_fulfill() {
     assert_eq!(
         r,
         RedeemResult {
-            id: 1,
+            id: Some(1),
             assets: U128(0)
         }
     );
@@ -94,7 +94,7 @@ fn redeem_queues_rest_then_cancel_and_fulfill() {
 
     e.call("alice", 1);
     let r = e.v.request_redeem(U128(400_000_000));
-    assert_eq!(r.id, 2);
+    assert_eq!(r.id, Some(2));
     e.v.idle = K;
     e.sync(0, [0; 3], [1; 3]);
     e.call("keeper", 0);
@@ -112,7 +112,7 @@ fn redeem_partial_instant_reserves_queue() {
     e.sync(700_000_000, [0; 3], [1; 3]);
     e.call("alice", 1);
     let r = e.v.request_redeem(U128(K));
-    assert_eq!(r.id, 1);
+    assert_eq!(r.id, Some(1));
     assert!(r.assets.0 > 299_000_000 && r.assets.0 < 300_000_000);
     assert!(e.v.total_queued_shares().0 > 699_000_000);
 }

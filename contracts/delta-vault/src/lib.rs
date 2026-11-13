@@ -9,8 +9,11 @@ mod admin;
 mod events;
 mod ext;
 mod ft_receiver;
+mod margin;
+mod mode;
 mod redeem;
 mod shares;
+mod spot;
 mod state;
 mod sync;
 #[cfg(test)]

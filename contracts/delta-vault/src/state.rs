@@ -62,6 +62,7 @@ pub struct WithdrawRequest {
 #[near(serializers = [json])]
 #[derive(Debug, PartialEq)]
 pub struct RedeemResult {
-    pub id: u64,
+    /// None = fully paid instantly.
+    pub id: Option<u64>,
     pub assets: U128,
 }
