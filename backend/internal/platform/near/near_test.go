@@ -43,3 +43,14 @@ func TestEncodeTx(t *testing.T) {
 		t.Fatal("signed tx")
 	}
 }
+
+func TestValidAccountID(t *testing.T) {
+	for s, want := range map[string]bool{
+		"alice.testnet": true, "a1-b_c.near": true, "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef": true,
+		"a": false, "Alice.near": false, "a..near": false, ".near": false, "0xabc!": false, "": false,
+	} {
+		if ValidAccountID(s) != want {
+			t.Errorf("%q: want %v", s, want)
+		}
+	}
+}
