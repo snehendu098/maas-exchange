@@ -1,0 +1,199 @@
+{
+  "units": "price usdc 1e6 per 1 base; size base 1e8 signed (long>0); usdc amounts 1e6",
+  "formulas": {
+    "notional": "floor(price * |size| / 1e8)",
+    "im": "ceil(notional(mark) * imr_bps / 10000)",
+    "mm": "ceil(notional(mark) * mmr_bps / 10000)",
+    "upnl": "long: notional(mark) - entry_notional; short: entry_notional - notional(mark)",
+    "equity": "collateral + upnl"
+  },
+  "cases": [
+    {
+      "name": "btc long 1 profit",
+      "imr_bps": 500,
+      "mmr_bps": 250,
+      "collateral": 10000000000,
+      "size": 100000000,
+      "entry_price": 60000000000,
+      "mark_price": 61500000000,
+      "expected": {
+        "entry_notional": 60000000000,
+        "notional": 61500000000,
+        "im": 3075000000,
+        "mm": 1537500000,
+        "upnl": 1500000000,
+        "equity": 11500000000
+      }
+    },
+    {
+      "name": "btc short 0.5 loss",
+      "imr_bps": 500,
+      "mmr_bps": 250,
+      "collateral": 5000000000,
+      "size": -50000000,
+      "entry_price": 60000000000,
+      "mark_price": 62000100000,
+      "expected": {
+        "entry_notional": 30000000000,
+        "notional": 31000050000,
+        "im": 1550002500,
+        "mm": 775001250,
+        "upnl": -1000050000,
+        "equity": 3999950000
+      }
+    },
+    {
+      "name": "eth long small loss",
+      "imr_bps": 500,
+      "mmr_bps": 250,
+      "collateral": 1000000000,
+      "size": 250000007,
+      "entry_price": 3000123457,
+      "mark_price": 2950000001,
+      "expected": {
+        "entry_notional": 7500308852,
+        "notional": 7375000209,
+        "im": 368750011,
+        "mm": 184375006,
+        "upnl": -125308643,
+        "equity": 874691357
+      }
+    },
+    {
+      "name": "eth short profit",
+      "imr_bps": 500,
+      "mmr_bps": 250,
+      "collateral": 2000000000,
+      "size": -1000000003,
+      "entry_price": 3100000000,
+      "mark_price": 2900550001,
+      "expected": {
+        "entry_notional": 31000000093,
+        "notional": 29005500097,
+        "im": 1450275005,
+        "mm": 725137503,
+        "upnl": 1994499996,
+        "equity": 3994499996
+      }
+    },
+    {
+      "name": "hype long odd qty",
+      "imr_bps": 1000,
+      "mmr_bps": 500,
+      "collateral": 300000000,
+      "size": 1237000000,
+      "entry_price": 25123000,
+      "mark_price": 26001000,
+      "expected": {
+        "entry_notional": 310771510,
+        "notional": 321632370,
+        "im": 32163237,
+        "mm": 16081619,
+        "upnl": 10860860,
+        "equity": 310860860
+      }
+    },
+    {
+      "name": "hype short flat price",
+      "imr_bps": 1000,
+      "mmr_bps": 500,
+      "collateral": 50000000,
+      "size": -300000000,
+      "entry_price": 30000000,
+      "mark_price": 30000000,
+      "expected": {
+        "entry_notional": 90000000,
+        "notional": 90000000,
+        "im": 9000000,
+        "mm": 4500000,
+        "upnl": 0,
+        "equity": 50000000
+      }
+    },
+    {
+      "name": "zec long rounding",
+      "imr_bps": 1000,
+      "mmr_bps": 500,
+      "collateral": 100000000,
+      "size": 3333333,
+      "entry_price": 45678901,
+      "mark_price": 45681234,
+      "expected": {
+        "entry_notional": 1522629,
+        "notional": 1522707,
+        "im": 152271,
+        "mm": 76136,
+        "upnl": 78,
+        "equity": 100000078
+      }
+    },
+    {
+      "name": "zec short big loss",
+      "imr_bps": 1000,
+      "mmr_bps": 500,
+      "collateral": 20000000,
+      "size": -10000000000,
+      "entry_price": 40000000,
+      "mark_price": 52340000,
+      "expected": {
+        "entry_notional": 4000000000,
+        "notional": 5234000000,
+        "im": 523400000,
+        "mm": 261700000,
+        "upnl": -1234000000,
+        "equity": -1214000000
+      }
+    },
+    {
+      "name": "btc dust floor to zero",
+      "imr_bps": 500,
+      "mmr_bps": 250,
+      "collateral": 0,
+      "size": 1,
+      "entry_price": 1,
+      "mark_price": 99999999,
+      "expected": {
+        "entry_notional": 0,
+        "notional": 0,
+        "im": 0,
+        "mm": 0,
+        "upnl": 0,
+        "equity": 0
+      }
+    },
+    {
+      "name": "btc dust margin rounds up",
+      "imr_bps": 500,
+      "mmr_bps": 250,
+      "collateral": 0,
+      "size": 10000,
+      "entry_price": 60000100000,
+      "mark_price": 60000100000,
+      "expected": {
+        "entry_notional": 6000010,
+        "notional": 6000010,
+        "im": 300001,
+        "mm": 150001,
+        "upnl": 0,
+        "equity": 0
+      }
+    },
+    {
+      "name": "no position",
+      "imr_bps": 500,
+      "mmr_bps": 250,
+      "collateral": 123456789,
+      "size": 0,
+      "entry_price": 0,
+      "mark_price": 60000000000,
+      "expected": {
+        "entry_notional": 0,
+        "notional": 0,
+        "im": 0,
+        "mm": 0,
+        "upnl": 0,
+        "equity": 123456789
+      }
+    }
+  ]
+}

@@ -10,3 +10,5 @@ version = "0.1.0"
 types = { path = "crates/types" }
 orderbook = { path = "crates/orderbook" }
 risk = { path = "crates/risk" }
+proto = { path = "crates/proto" }
+serde = { version = "1", features = ["derive"] }
