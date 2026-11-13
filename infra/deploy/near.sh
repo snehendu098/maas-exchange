@@ -42,12 +42,24 @@ deploy "$EXCHANGE" perp_exchange.wasm "{\"owner\":\"$MASTER\",\"operator\":\"$OP
 \"max_price_age_ms\":${MAX_PRICE_AGE_MS:-60000}}"
 
 [ "$NET" = mainnet ] && REF_DEFAULT=v2.ref-finance.near || REF_DEFAULT=ref-finance-101.testnet
+# vault spot legs: base token + ref pool per market (BTC, ETH, NEAR)
+VAULT_MARKETS=${VAULT_MARKETS:-'[{"base_token":"wbtc.fakes.testnet","base_decimals":8,"ref_pool_id":0},{"base_token":"weth.fakes.testnet","base_decimals":18,"ref_pool_id":0},{"base_token":"wrap.testnet","base_decimals":24,"ref_pool_id":0}]'}
+VAULT_CONFIG=${VAULT_CONFIG:-'{"weights_bps":[5000,3000,2000],"short_leverage_bps":10000,"idle_buffer_bps":1000,"withdraw_fee_bps":10,"cooldown_ms":3600000,"price_band_bps":100,"slippage_bps":50,"size_cap":["1000000000","1000000000","1000000000"],"max_price_age_ms":60000}'}
 VAULT_DEFAULT="{\"owner\":\"$MASTER\",\"keeper\":\"$KEEPER\",\"usdc\":\"$USDC\",\"exchange\":\"$EXCHANGE\",\
-\"ref_exchange\":\"${REF_EXCHANGE:-$REF_DEFAULT}\"}"
-# shortcut: vault init args guessed from spec, override with VAULT_INIT_ARGS until contract init is final
+\"ref_exchange\":\"${REF_EXCHANGE:-$REF_DEFAULT}\",\"markets\":$VAULT_MARKETS,\"config\":$VAULT_CONFIG}"
 deploy "$VAULT" delta_vault.wasm "${VAULT_INIT_ARGS:-$VAULT_DEFAULT}"
 
 for a in "$EXCHANGE" "$VAULT"; do usdc_register "$a"; done
+
+# markets: (id tick lot imr mmr), must match engine default_markets
+set_market() {
+  near contract call-function as-transaction "$EXCHANGE" set_market json-args \
+    "{\"market_id\":$1,\"market\":{\"tick_size\":\"$2\",\"lot_size\":\"$3\",\"max_leverage\":$((10000 / $4)),\"imr_bps\":$4,\"mmr_bps\":$5,\"maker_fee_bps\":${MAKER_FEE_BPS:-2},\"taker_fee_bps\":${TAKER_FEE_BPS:-5}}}" \
+    prepaid-gas '30 Tgas' attached-deposit '0 NEAR' sign-as "$MASTER" "${TAIL[@]}"
+}
+set_market 0 100000 10000 500 250
+set_market 1 10000 100000 500 250
+set_market 2 1000 1000000 1000 500
 
 echo "EXCHANGE_CONTRACT=$EXCHANGE"
 echo "VAULT_CONTRACT=$VAULT"

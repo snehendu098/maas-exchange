@@ -10,5 +10,6 @@ RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache
 
 FROM gcr.io/distroless/static-debian12:nonroot
 COPY --from=build /out/svc /app/svc
+COPY --from=build /src/config /app/config
 WORKDIR /app
 ENTRYPOINT ["/app/svc"]
