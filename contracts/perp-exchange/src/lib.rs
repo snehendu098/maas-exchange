@@ -15,9 +15,9 @@ mod orders;
 mod prices;
 mod settle;
 mod state;
-mod views;
 #[cfg(test)]
 mod tests;
+mod views;
 
 pub use orders::{Fill, Order};
 pub use state::*;
@@ -101,7 +101,10 @@ impl PerpExchange {
     }
 
     fn mkt(&self, market_id: u32) -> Market {
-        self.markets.get(&market_id).cloned().expect("unknown market")
+        self.markets
+            .get(&market_id)
+            .cloned()
+            .expect("unknown market")
     }
 
     fn coll(&self, a: &AccountId) -> i128 {
@@ -116,7 +119,10 @@ impl PerpExchange {
     }
 
     fn pos(&self, a: &AccountId, market_id: u32) -> Position {
-        self.positions.get(&(a.clone(), market_id)).copied().unwrap_or_default()
+        self.positions
+            .get(&(a.clone(), market_id))
+            .copied()
+            .unwrap_or_default()
     }
 
     fn findex(&self, market_id: u32) -> i128 {

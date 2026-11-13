@@ -40,7 +40,11 @@ pub fn mul_div_rem(a: u128, b: u128, d: u128) -> (u128, u128) {
 
 pub fn mul_div(a: u128, b: u128, d: u128, round_up: bool) -> u128 {
     let (q, r) = mul_div_rem(a, b, d);
-    if round_up && r != 0 { q + 1 } else { q }
+    if round_up && r != 0 {
+        q + 1
+    } else {
+        q
+    }
 }
 
 pub fn to_i128(x: u128) -> i128 {
@@ -65,15 +69,27 @@ pub fn margin(size: i128, mark: u128, bps: u128) -> u128 {
 /// long: notional(mark) - entry; short: entry - notional(mark).
 pub fn upnl(size: i128, entry_notional: u128, mark: u128) -> i128 {
     let p = to_i128(notional(size, mark)) - to_i128(entry_notional);
-    if size < 0 { -p } else { p }
+    if size < 0 {
+        -p
+    } else {
+        p
+    }
 }
 
 /// Funding owed for index delta, ceiled toward +inf (against trader); negative = receives.
 /// Returns (owed, dust) with dust = owed * FUNDING_UNIT - size * delta, in [0, FUNDING_UNIT).
 pub fn funding(size: i128, index_delta: i128) -> (i128, u128) {
-    let (q, r) = mul_div_rem(size.unsigned_abs(), index_delta.unsigned_abs(), FUNDING_UNIT);
+    let (q, r) = mul_div_rem(
+        size.unsigned_abs(),
+        index_delta.unsigned_abs(),
+        FUNDING_UNIT,
+    );
     if (size < 0) == (index_delta < 0) {
-        if r == 0 { (to_i128(q), 0) } else { (to_i128(q + 1), FUNDING_UNIT - r) }
+        if r == 0 {
+            (to_i128(q), 0)
+        } else {
+            (to_i128(q + 1), FUNDING_UNIT - r)
+        }
     } else {
         (-to_i128(q), r)
     }
@@ -132,7 +148,12 @@ mod tests {
 
     #[test]
     fn mul_div_wide_matches_naive() {
-        let cases = [(u128::MAX, 3, 7), (1 << 100, 1 << 90, 1 << 95), (12345, 6789, 11), (u128::MAX, u128::MAX, u128::MAX)];
+        let cases = [
+            (u128::MAX, 3, 7),
+            (1 << 100, 1 << 90, 1 << 95),
+            (12345, 6789, 11),
+            (u128::MAX, u128::MAX, u128::MAX),
+        ];
         for (a, b, d) in cases {
             let (q, r) = mul_div_rem(a, b, d);
             // check q*d + r == a*b in 256 bits

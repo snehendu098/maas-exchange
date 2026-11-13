@@ -15,7 +15,8 @@ impl PerpExchange {
             }
             let m = self.mkt(i);
             let mark = self.mark(i);
-            eq += upnl(p.size, p.entry_notional, mark) - funding(p.size, self.findex(i) - p.last_funding_index).0;
+            eq += upnl(p.size, p.entry_notional, mark)
+                - funding(p.size, self.findex(i) - p.last_funding_index).0;
             im += margin(p.size, mark, m.imr_bps as u128);
             mm += margin(p.size, mark, m.mmr_bps as u128);
         }

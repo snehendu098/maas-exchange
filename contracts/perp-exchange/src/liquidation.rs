@@ -13,7 +13,10 @@ impl PerpExchange {
         self.assert_role(&self.keeper.clone(), "keeper");
         let m = self.mkt(market_id);
         let size = self.pos(&account_id, market_id).size;
-        assert!(account_id != self.insurance && size != 0, "not liquidatable");
+        assert!(
+            account_id != self.insurance && size != 0,
+            "not liquidatable"
+        );
         let (eq, _, mm) = self.health(&account_id);
         assert!(eq < to_i128(mm), "not liquidatable");
 
@@ -21,7 +24,8 @@ impl PerpExchange {
         let (abs, close_is_buy, ins) = (size.unsigned_abs(), size < 0, self.insurance.clone());
         self.trade(&account_id, market_id, close_is_buy, abs, price, 0, false);
         self.trade(&ins, market_id, !close_is_buy, abs, price, 0, false);
-        let (penalty, bad_debt) = self.penalize(&account_id, notional(size, price), m.mmr_bps as u128);
+        let (penalty, bad_debt) =
+            self.penalize(&account_id, notional(size, price), m.mmr_bps as u128);
         emit(
             "liquidated",
             json!({
