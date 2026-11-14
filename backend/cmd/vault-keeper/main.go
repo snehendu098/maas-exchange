@@ -5,13 +5,13 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"math/big"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
-	"maas/backend/internal/gateway/api"
 	"maas/backend/internal/platform/config"
 	"maas/backend/internal/platform/gwclient"
 	"maas/backend/internal/platform/logger"
@@ -66,18 +66,18 @@ func run(ctx context.Context) error {
 	if set.AlertURL != "" {
 		k.Alerts = alert.Webhook{C: gwclient.Client{Base: set.AlertURL, HTTP: httpc}}
 	}
-	gw := gwclient.Client{Base: set.Gateway, HTTP: httpc}
-	rb := vk.Rebalancer{Vault: vault, Prints: func(ctx context.Context, m uint32) ([]vk.Print, error) {
-		var rows []api.FundingRate
-		if err := gw.Do(ctx, "GET", fmt.Sprintf("/funding/%d?window=%s", m, set.Window), nil, &rows); err != nil {
+	ip := &vk.IndexPrints{Window: set.Window, Clock: vk.SystemClock{}, Read: func(ctx context.Context, m uint32) (*big.Int, error) {
+		var v string // I128 decimal string
+		if err := rpc.View(ctx, cfg.Exchange, "funding_index", map[string]any{"market_id": m}, &v); err != nil {
 			return nil, err
 		}
-		out := make([]vk.Print, len(rows))
-		for i, r := range rows {
-			out[i] = vk.Print{Ref: fmt.Sprintf("%d:%d", r.Block, r.LogIndex), Rate: r.Rate}
+		n, ok := new(big.Int).SetString(v, 10)
+		if !ok {
+			return nil, fmt.Errorf("bad funding_index %q", v)
 		}
-		return out, nil
+		return n, nil
 	}}
+	rb := vk.Rebalancer{Vault: vault, Prints: ip.Prints}
 	go rb.Run(ctx, set.Rebalance)
 	go func() { // hourly: LP half of withdraw fees -> pool reward streams, rest -> treasury
 		t := time.NewTicker(set.Rebalance)

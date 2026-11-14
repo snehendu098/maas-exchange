@@ -23,7 +23,7 @@ services:
       POSTGRES_USER: perp
       POSTGRES_PASSWORD: perp
       POSTGRES_DB: perp
-    ports: ["5432:5432"]
+    ports: ["${PG_PORT:-5432}:5432"]
     volumes: ["pg:/var/lib/postgresql/data"]
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "perp"]
@@ -44,7 +44,7 @@ services:
     <<: *go
     build: { context: ../../backend, args: { SVC: gateway } }
     environment: { <<: *env, GATEWAY_ADDR: ":8080" }
-    ports: ["8080:8080"]
+    ports: ["${GATEWAY_PORT:-8080}:8080"]
   indexer: { <<: *go, build: { context: ../../backend, args: { SVC: indexer } } }
   settler: { <<: *go, build: { context: ../../backend, args: { SVC: settler } } }
   keeper: { <<: *go, build: { context: ../../backend, args: { SVC: keeper } } }

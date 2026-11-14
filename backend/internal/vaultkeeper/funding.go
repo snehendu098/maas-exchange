@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"math/big"
 	"slices"
+	"sync"
 	"time"
 )
 
@@ -102,4 +103,58 @@ func (r Rebalancer) Run(ctx context.Context, every time.Duration) error {
 		case <-t.C:
 		}
 	}
+}
+
+// IndexPrints reads funding prints straight from chain: the exchange's funding_index moves by
+// rate x mark on every update (mark > 0), so each observed change is one print with the rate's sign.
+// No indexer needed. Samples live in memory: until a full window has been observed, the unseen part
+// counts as one non-negative print, so a restart never exits on a partial window.
+type IndexPrints struct {
+	Read   func(ctx context.Context, market uint32) (*big.Int, error)
+	Window time.Duration
+	Clock  Clock
+
+	mu      sync.Mutex
+	started time.Time
+	last    map[uint32]*big.Int
+	seen    map[uint32][]timedPrint
+}
+
+type timedPrint struct {
+	at time.Time
+	p  Print
+}
+
+func (x *IndexPrints) Prints(ctx context.Context, m uint32) ([]Print, error) {
+	idx, err := x.Read(ctx, m)
+	if err != nil {
+		return nil, err
+	}
+	x.mu.Lock()
+	defer x.mu.Unlock()
+	now := x.Clock.Now()
+	if x.last == nil {
+		x.started, x.last, x.seen = now, map[uint32]*big.Int{}, map[uint32][]timedPrint{}
+	}
+	if prev, ok := x.last[m]; ok && prev.Cmp(idx) != 0 {
+		d := new(big.Int).Sub(idx, prev)
+		x.seen[m] = append(x.seen[m], timedPrint{now, Print{Ref: "funding_index:" + idx.String(), Rate: d.String()}})
+	}
+	x.last[m] = idx
+	cut := now.Add(-x.Window)
+	kept := x.seen[m][:0]
+	for _, t := range x.seen[m] {
+		if t.at.After(cut) {
+			kept = append(kept, t)
+		}
+	}
+	x.seen[m] = kept
+	out := make([]Print, 0, len(kept)+1)
+	if now.Sub(x.started) < x.Window && len(kept) > 0 {
+		out = append(out, Print{Ref: "unobserved", Rate: "0"})
+	}
+	for _, t := range kept {
+		out = append(out, t.p)
+	}
+	return out, nil
 }

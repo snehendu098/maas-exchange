@@ -27,7 +27,14 @@ sub_account() {
     sign-as "$MASTER" "${TAIL[@]}"
 }
 
-deploy() { # account wasm init-json
+RPC=${NEAR_RPC_URL:-https://rpc.$NET.near.org}
+has_code() {
+  curl -s "$RPC" -H 'content-type: application/json' -d "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"query\",\"params\":{\"request_type\":\"view_account\",\"finality\":\"final\",\"account_id\":\"$1\"}}" \
+    | grep -q '"code_hash":"[^1]'
+}
+
+deploy() { # account wasm init-json; skips accounts that already hold code (no re-init)
+  has_code "$1" && { echo "skip deploy $1"; return; }
   near contract deploy "$1" use-file "$WASM_DIR/$2" with-init-call new json-args "$3" \
     prepaid-gas '100 Tgas' attached-deposit '0 NEAR' "${TAIL[@]}"
 }
@@ -78,6 +85,9 @@ set_market() {
 set_market 0 100000 10000 500 250
 set_market 1 10000 100000 500 250
 set_market 2 1000 1000000 1000 500
+
+# vault-keeper signs vault perp orders with this key
+[ -n "${VK_PUBLIC_KEY:-}" ] && call "$VAULT" add_vault_trading_key "{\"public_key\":\"$VK_PUBLIC_KEY\"}"
 
 echo "EXCHANGE_CONTRACT=$EXCHANGE"
 echo "VAULT_CONTRACT=$VAULT"

@@ -2,7 +2,9 @@ package vaultkeeper
 
 import (
 	"context"
+	"math/big"
 	"testing"
+	"time"
 )
 
 func ps(rates ...string) []Print {
@@ -61,5 +63,42 @@ func TestRebalancerCheck(t *testing.T) {
 	}
 	if len(v.set) != 2 || v.set[0] != "FLAT@b:-1" || v.set[1] != "HEDGED@b:4" {
 		t.Fatalf("calls %v", v.set)
+	}
+}
+
+type stepClock struct{ t time.Time }
+
+func (c *stepClock) Now() time.Time { return c.t }
+
+func TestIndexPrintsWindow(t *testing.T) {
+	clk := &stepClock{time.Unix(0, 0)}
+	idx := big.NewInt(1000)
+	x := &IndexPrints{Read: func(context.Context, uint32) (*big.Int, error) { return new(big.Int).Set(idx), nil }, Window: 3 * time.Hour, Clock: clk}
+	step := func(d int64) []Print {
+		clk.t = clk.t.Add(time.Hour)
+		idx.Add(idx, big.NewInt(d))
+		ps, err := x.Prints(context.Background(), 0)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return ps
+	}
+	if ps := step(0); len(ps) != 0 {
+		t.Fatalf("first sample has no print: %v", ps)
+	}
+	// partial window: negatives alone must not exit
+	if got := Decide(ModeHedged, step(-5)); got != ModeHedged {
+		t.Fatal("exited on partial window")
+	}
+	step(-5)
+	ps := step(-5) // 3h observed, 3 negative prints
+	if len(ps) != 3 || Decide(ModeHedged, ps) != ModeFlat {
+		t.Fatalf("want exit on 3 negatives: %v", ps)
+	}
+	if Decide(ModeFlat, step(7)) != ModeHedged {
+		t.Fatal("want re-entry on positive")
+	}
+	if ps := step(0); len(ps) != 2 {
+		t.Fatalf("old prints drop out of window, unchanged index adds none: %v", ps)
 	}
 }
