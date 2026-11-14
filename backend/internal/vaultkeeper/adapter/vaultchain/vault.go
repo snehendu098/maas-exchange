@@ -57,6 +57,13 @@ func (v *Vault) State(ctx context.Context) (vk.VaultState, error) {
 	nav := r.big("nav", nil)
 	st.NAV = r.int(nav)
 	st.Idle = r.int(r.big("idle", nil)) + r.int(r.big("ref_usdc", nil))
+	var fees [2]string // [lp, treasury] withdraw fees booked in idle, not deployable
+	r.view("accrued_fees", nil, &fees)
+	for _, f := range fees {
+		if n, ok := new(big.Int).SetString(f, 10); ok {
+			st.Idle -= n.Int64()
+		}
+	}
 	var cfg struct {
 		WeightsBps       []int64 `json:"weights_bps"`
 		ShortLeverageBps int64   `json:"short_leverage_bps"`
@@ -68,6 +75,7 @@ func (v *Vault) State(ctx context.Context) (vk.VaultState, error) {
 		id := uint32(i)
 		var mode string
 		r.view("mode", map[string]any{"market": id}, &mode)
+		st.Modes[id] = vk.ModeFlat // every market listed: the rebalancer iterates Modes
 		if mode == "Hedged" {
 			st.Modes[id] = vk.ModeHedged
 		}
