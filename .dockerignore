@@ -1,0 +1,8 @@
+# root ctx used by engine/Dockerfile
+*
+!proto/
+!infra/nats/
+!engine/Cargo.toml
+!engine/Cargo.lock
+!engine/crates/
+engine/crates/**/target

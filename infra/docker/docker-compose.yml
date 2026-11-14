@@ -1,8 +1,21 @@
+# make infra: nats + postgres. make up: + engine and go svcs (near testnet via root .env)
+x-go: &go
+  restart: unless-stopped
+  env_file: [{ path: ../../.env, required: false }]
+  environment: &env
+    NATS_URL: nats://nats:4222
+    DATABASE_URL: postgres://perp:perp@postgres:5432/perp
+  depends_on:
+    postgres: { condition: service_healthy }
+    nats: { condition: service_started }
+  profiles: [svc]
+
 services:
   nats:
     image: nats:2.10
-    command: ["-js"]
+    command: ["-js", "-sd", "/data"]
     ports: ["4222:4222", "8222:8222"]
+    volumes: ["nats:/data"]
 
   postgres:
     image: postgres:16
@@ -11,3 +24,37 @@ services:
       POSTGRES_PASSWORD: perp
       POSTGRES_DB: perp
     ports: ["5432:5432"]
+    volumes: ["pg:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "perp"]
+      interval: 5s
+
+  engine:
+    build: { context: ../.., dockerfile: engine/Dockerfile }
+    restart: unless-stopped
+    env_file: [{ path: ../../.env, required: false }]
+    environment:
+      NATS_URL: nats://nats:4222
+      ENGINE_SNAPSHOT_PATH: /data/engine.snapshot
+    volumes: ["engine:/data"]
+    depends_on: [nats]
+    profiles: [svc]
+
+  gateway:
+    <<: *go
+    build: { context: ../../backend, args: { SVC: gateway } }
+    environment: { <<: *env, GATEWAY_ADDR: ":8080" }
+    ports: ["8080:8080"]
+  indexer: { <<: *go, build: { context: ../../backend, args: { SVC: indexer } } }
+  settler: { <<: *go, build: { context: ../../backend, args: { SVC: settler } } }
+  keeper: { <<: *go, build: { context: ../../backend, args: { SVC: keeper } } }
+  mm-bot:
+    <<: *go
+    build: { context: ../../backend, args: { SVC: mm-bot } }
+    environment: { <<: *env, MM_GATEWAY_URL: "http://gateway:8080" }
+  vault-keeper:
+    <<: *go
+    build: { context: ../../backend, args: { SVC: vault-keeper } }
+    environment: { <<: *env, VK_GATEWAY_URL: "http://gateway:8080" }
+
+volumes: { nats: {}, pg: {}, engine: {} }

@@ -3,5 +3,8 @@ name = "types"
 edition.workspace = true
 version.workspace = true
 
-[dependencies]
+[features]
+serde = ["dep:serde"]
 
+[dependencies]
+serde = { workspace = true, optional = true }
