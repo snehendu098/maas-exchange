@@ -105,6 +105,15 @@ func (v *Vault) DepositMargin(ctx context.Context, usdc int64) error {
 	return v.send(ctx, "deposit_margin", map[string]any{"amount": fmt.Sprint(usdc)})
 }
 
+// SetMode is keeper-only set_mode; the chain enforces cooldown.
+func (v *Vault) SetMode(ctx context.Context, market uint32, m vk.Mode, reason string) error {
+	mode := "Flat"
+	if m == vk.ModeHedged {
+		mode = "Hedged"
+	}
+	return v.send(ctx, "set_mode", map[string]any{"market": market, "mode": mode, "reason_ref": reason})
+}
+
 func (v *Vault) WithdrawMargin(ctx context.Context, usdc int64) error {
 	return v.send(ctx, "withdraw_margin", map[string]any{"amount": fmt.Sprint(usdc)})
 }

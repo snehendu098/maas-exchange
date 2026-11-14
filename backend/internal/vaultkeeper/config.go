@@ -10,11 +10,13 @@ import (
 
 // Settings is vault-keeper env on top of platform config.
 type Settings struct {
-	Account    string // VK_ACCOUNT_ID: vault keeper role account
-	Key        string // VK_PRIVATE_KEY: its full access key, sends keeper-only vault txs
-	TradingKey string // VK_TRADING_KEY: signs vault orders (add_vault_trading_key), default VK_PRIVATE_KEY
-	Gateway    string // VK_GATEWAY_URL
-	AlertURL   string // VK_ALERT_WEBHOOK, optional
+	Account    string        // VK_ACCOUNT_ID: vault keeper role account
+	Key        string        // VK_PRIVATE_KEY: its full access key, sends keeper-only vault txs
+	TradingKey string        // VK_TRADING_KEY: signs vault orders (add_vault_trading_key), default VK_PRIVATE_KEY
+	Gateway    string        // VK_GATEWAY_URL
+	AlertURL   string        // VK_ALERT_WEBHOOK, optional
+	Rebalance  time.Duration // VK_REBALANCE_EVERY: funding-rule check period, default 1h
+	Window     time.Duration // VK_FUNDING_WINDOW: exit when every print in it is negative, default 3h
 	Params
 }
 
@@ -44,7 +46,8 @@ func LoadSettings() (Settings, error) {
 	}
 	s := Settings{
 		Account: os.Getenv("VK_ACCOUNT_ID"), Key: os.Getenv("VK_PRIVATE_KEY"), AlertURL: os.Getenv("VK_ALERT_WEBHOOK"),
-		Gateway: env("VK_GATEWAY_URL", "http://localhost:8080"),
+		Gateway:   env("VK_GATEWAY_URL", "http://localhost:8080"),
+		Rebalance: d("VK_REBALANCE_EVERY", time.Hour), Window: d("VK_FUNDING_WINDOW", 3*time.Hour),
 		Params: Params{
 			Policy: Policy{
 				TolBps: n("VK_TOLERANCE_BPS", 100), SettleTimeout: d("VK_SETTLE_TIMEOUT", 30*time.Second),

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
@@ -10,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	"maas/backend/internal/gateway/api"
 	"maas/backend/internal/platform/config"
 	"maas/backend/internal/platform/gwclient"
 	"maas/backend/internal/platform/logger"
@@ -64,6 +66,19 @@ func run(ctx context.Context) error {
 	if set.AlertURL != "" {
 		k.Alerts = alert.Webhook{C: gwclient.Client{Base: set.AlertURL, HTTP: httpc}}
 	}
-	slog.Info("vault-keeper: start", "vault", cfg.Vault, "signer", sg.Account, "gateway", set.Gateway)
+	gw := gwclient.Client{Base: set.Gateway, HTTP: httpc}
+	rb := vk.Rebalancer{Vault: vault, Prints: func(ctx context.Context, m uint32) ([]vk.Print, error) {
+		var rows []api.FundingRate
+		if err := gw.Do(ctx, "GET", fmt.Sprintf("/funding/%d?window=%s", m, set.Window), nil, &rows); err != nil {
+			return nil, err
+		}
+		out := make([]vk.Print, len(rows))
+		for i, r := range rows {
+			out[i] = vk.Print{Ref: fmt.Sprintf("%d:%d", r.Block, r.LogIndex), Rate: r.Rate}
+		}
+		return out, nil
+	}}
+	go rb.Run(ctx, set.Rebalance)
+	slog.Info("vault-keeper: start", "vault", cfg.Vault, "signer", sg.Account, "gateway", set.Gateway, "funding_window", set.Window)
 	return k.Run(ctx)
 }
