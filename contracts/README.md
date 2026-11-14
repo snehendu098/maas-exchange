@@ -7,6 +7,7 @@ NEAR contracts for MaaS Exchange (near-sdk 5).
 | `perp-math` | fixed-point helpers: notional, margin, upnl, funding (256-bit mul_div) |
 | `perp-exchange` | cross-margin perp settlement of offchain-matched signed orders |
 | `delta-vault` | delta-neutral USDC vault, NEP-141 share `mxUSDC` (6dp) |
+| `maas-pool` | full-range USDC/base AMM the vault swaps through; JIT-safe fee streaming, oracle-gap dynamic fee |
 
 Units: USDC 6dp. price = USDC 1e6 per 1 base. size = base 1e8 (signed for positions). funding rate 1e18 = 100%, funding index = USDC-wei * 1e18 per 1 base. All u128/i128 in JSON are decimal strings.
 
@@ -123,3 +124,18 @@ Post-deploy (each a `call-function as-transaction`):
 - `$EX set_fee_exempt {"account_id":"<VAULT>","exempt":true}` (owner).
 - `$VAULT add_vault_trading_key {"public_key":"ed25519:..."}` (owner, 30 Tgas) with the keeper's signing key.
 - Fund vault account with NEAR: it pays 1 yocto per ft/Ref call and storage for share holders.
+
+## maas-pool
+
+Init: `new(owner, keeper, vault, usdc, params)`. Params `{base_fee_bps, gap_share_bps, cap_bps (<= 1000), stale_fee_bps, max_price_age_ms}`. Pool id = perp market id (`add_pool(base, base_decimals)`, owner).
+
+Ref-compatible subset (delta-vault's `ref_exchange` = this contract): deposit `ft_transfer_call(pool, amt, "")`, `swap(actions[1], referral_id)` exact-in on internal deposits (1 yocto), `withdraw(token_id, amount)` (1 yocto, resolves to amount sent, 0 + re-credit on failure).
+
+| method | who | notes |
+|---|---|---|
+| `add_liquidity(pool_id, [usdc, base], min_shares)` / `remove_liquidity(pool_id, shares, min_amounts)` | anyone | full range, from/to internal deposits, no lockup |
+| `claim(pool_id)` | LP | earned fees + rewards to internal deposits |
+| `ft_transfer_call(pool, amt, {"reward": pool_id})` | anyone (vault `pay_fees`) | streamed to that pool's LPs over 1h |
+| `push_prices([[pool_id, price, publish_ms]])` | keeper | oracle for the dynamic fee |
+
+Fee: 0 for the vault. Else `base + gap_share * gap_after_bps` when the swap widens the pool-vs-oracle gap, capped; stale oracle = `stale_fee_bps`. Fees are not added to reserves: each restarts a 1h linear stream paid per share, so JIT liquidity earns only the slice of time it is present. Views: `pool_view`, `lp(pool_id, account_id) -> {shares, earned}`, `quote`, `fee_bps`, `get_deposit`, `params`.
