@@ -8,6 +8,7 @@ use near_sdk::{env, near, AccountId, BorshStorageKey, PanicOnDefault};
 mod admin;
 mod events;
 mod ext;
+mod fees;
 mod ft_receiver;
 mod margin;
 mod mode;
@@ -57,6 +58,9 @@ pub struct DeltaVault {
     requests: LookupMap<u64, WithdrawRequest>,
     next_request_id: u64,
     total_queued_shares: u128,
+    /// Withdraw fee owed: half to pool LPs (streamed rewards), half to treasury (owner). Held in idle, not NAV.
+    lp_accrued: u128,
+    treasury_accrued: u128,
 }
 
 #[near]
@@ -92,6 +96,8 @@ impl DeltaVault {
             requests: LookupMap::new(Key::Requests),
             next_request_id: 1,
             total_queued_shares: 0,
+            lp_accrued: 0,
+            treasury_accrued: 0,
         };
         v.token
             .internal_register_account(&env::current_account_id());

@@ -1,0 +1,15 @@
+[package]
+name = "maas-pool"
+edition.workspace = true
+version.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+near-sdk.workspace = true
+perp-math.workspace = true
+near-contract-standards.workspace = true
+
+[dev-dependencies]
+near-sdk = { workspace = true, features = ["unit-testing"] }

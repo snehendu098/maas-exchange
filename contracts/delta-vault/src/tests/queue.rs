@@ -160,3 +160,30 @@ fn sync_discarded_after_epoch_bump() {
     e.call("vault", 0);
     assert!(!e.v.on_sync(epoch));
 }
+
+#[test]
+fn withdraw_fee_split_lp_treasury_and_paid_out() {
+    let mut e = Env::new();
+    e.deposit("alice", K);
+    e.deposit("bob", K);
+    e.call("alice", 1);
+    let r = e.v.request_redeem(U128(K));
+    // 10 bps of 1000 USDC = 1 USDC, half LP half treasury, held in idle outside NAV
+    assert_eq!(r.assets.0, K - 1_000_000);
+    assert_eq!(e.v.accrued_fees(), [U128(500_000), U128(500_000)]);
+    assert_eq!(e.v.nav().0, K, "fee is not bob's");
+    e.call("keeper", 0);
+    let _ = e.v.pay_fees();
+    assert_eq!(e.v.accrued_fees(), [U128(0), U128(0)]);
+    assert_eq!(e.v.idle().0, K);
+    // pool rejects one reward (unused amount returned): it re-accrues
+    e.call_with(
+        "vault",
+        0,
+        vec![PromiseResult::Successful(b"\"0\"".to_vec())],
+    );
+    e.v.on_lp_reward(U128(250_000));
+    assert_eq!(e.v.accrued_fees()[0].0, 250_000);
+    assert_eq!(e.v.idle().0, K + 250_000);
+    assert_eq!(e.v.nav().0, K);
+}

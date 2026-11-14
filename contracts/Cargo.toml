@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["perp-exchange", "delta-vault", "perp-math"]
+members = ["perp-exchange", "delta-vault", "perp-math", "maas-pool"]
 
 [workspace.package]
 edition = "2021"

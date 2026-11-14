@@ -30,7 +30,7 @@ impl DeltaVault {
         };
         let mut assets = 0;
         if instant != 0 {
-            assets = self.preview_redeem(instant, nav);
+            assets = self.charge(instant, nav);
             self.burn(&a, instant);
             self.payout(a.clone(), instant, assets);
         }
@@ -81,8 +81,8 @@ impl DeltaVault {
         self.assert_role(&self.keeper.clone(), "keeper");
         let nav = self.fresh_nav();
         let r = self.requests.remove(&id).expect("unknown request");
-        let assets = self.preview_redeem(r.shares.0, nav);
-        assert!(assets <= self.idle, "insufficient idle");
+        let assets = self.charge(r.shares.0, nav);
+        assert!(assets + self.accrued() <= self.idle, "insufficient idle");
         self.total_queued_shares -= r.shares.0;
         self.burn(&env::current_account_id(), r.shares.0);
         self.payout(r.owner.clone(), r.shares.0, assets);

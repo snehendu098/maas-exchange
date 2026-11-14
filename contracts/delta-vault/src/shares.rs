@@ -119,6 +119,7 @@ impl DeltaVault {
     /// idle + ref_usdc + spot + perp equity, floored at 0. Uses cached snapshot.
     pub(crate) fn nav_of(&self) -> u128 {
         let nav = perp_math::to_i128(self.idle + self.ref_usdc + self.spot_value_of())
+            - perp_math::to_i128(self.accrued())
             + self.snapshot.perp_equity;
         nav.max(0) as u128
     }
@@ -152,6 +153,7 @@ impl DeltaVault {
     /// Idle USDC not reserved for queued shares.
     pub(crate) fn available(&self, nav: u128) -> u128 {
         self.idle
+            .saturating_sub(self.accrued())
             .saturating_sub(self.to_assets(self.total_queued_shares, nav, true))
     }
 
