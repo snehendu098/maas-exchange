@@ -105,6 +105,9 @@ func (v *Vault) DepositMargin(ctx context.Context, usdc int64) error {
 	return v.send(ctx, "deposit_margin", map[string]any{"amount": fmt.Sprint(usdc)})
 }
 
+// PayFees streams accrued withdraw fees to pool LPs + treasury (no-op on chain when nothing accrued).
+func (v *Vault) PayFees(ctx context.Context) error { return v.call(ctx, "pay_fees", nil) }
+
 // SetMode is keeper-only set_mode; the chain enforces cooldown.
 func (v *Vault) SetMode(ctx context.Context, market uint32, m vk.Mode, reason string) error {
 	mode := "Flat"

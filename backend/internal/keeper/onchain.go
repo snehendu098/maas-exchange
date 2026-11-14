@@ -3,6 +3,7 @@ package keeper
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"math/big"
 	"sort"
 	"strconv"
@@ -19,6 +20,7 @@ import (
 type Onchain struct {
 	Signer    *near.Signer
 	Exchange  string
+	Pool      string // POOL_CONTRACT, optional: maas-pool gets the same prices for its dynamic fee
 	Prices    func() oracle.Snapshot
 	PushEvery time.Duration // min gap between push_prices txs
 
@@ -45,6 +47,12 @@ func (o *Onchain) pushPrices(ctx context.Context) error {
 		return err
 	}
 	o.pushed, o.pushedAt = s.PublishTime, time.Now()
+	if o.Pool != "" {
+		// pool oracle is best effort: a stale pool price only raises trader fees to stale_fee_bps
+		if _, err := o.Signer.Call(ctx, o.Pool, near.FunctionCall{Method: "push_prices", Args: near.Args(map[string]any{"prices": args}), Gas: 30 * near.TGas}); err != nil {
+			slog.Warn("keeper: pool push_prices", "err", err)
+		}
+	}
 	return nil
 }
 

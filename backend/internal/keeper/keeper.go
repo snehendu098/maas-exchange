@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"os"
 	"sync"
 	"time"
 
@@ -73,7 +74,7 @@ func New(ctx context.Context, cfg config.Config, s Settings, pool *pgxpool.Pool)
 	}
 	k.Feed = &pricefeed.Feed{Src: src}
 	k.Marks = &pricefeed.Marks{Window: s.TWAPWindow, Index: k.Feed.Index}
-	k.Chain = &Onchain{Signer: sg, Exchange: cfg.Exchange, Prices: k.Feed.Snapshot, PushEvery: s.PushEvery}
+	k.Chain = &Onchain{Signer: sg, Exchange: cfg.Exchange, Pool: os.Getenv("POOL_CONTRACT"), Prices: k.Feed.Snapshot, PushEvery: s.PushEvery}
 	k.Funder = &funding.Funder{
 		Markets: ids, Interval: s.FundingEvery, Cap: s.FundingCap, Interest: s.FundingBps,
 		Mark: k.Marks.Mark, Index: k.Feed.Index, Poster: k.Chain,

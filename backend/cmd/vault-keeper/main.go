@@ -79,6 +79,20 @@ func run(ctx context.Context) error {
 		return out, nil
 	}}
 	go rb.Run(ctx, set.Rebalance)
+	go func() { // hourly: LP half of withdraw fees -> pool reward streams, rest -> treasury
+		t := time.NewTicker(set.Rebalance)
+		defer t.Stop()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-t.C:
+				if err := vault.PayFees(ctx); err != nil {
+					slog.Warn("vault-keeper: pay_fees", "err", err)
+				}
+			}
+		}
+	}()
 	slog.Info("vault-keeper: start", "vault", cfg.Vault, "signer", sg.Account, "gateway", set.Gateway, "funding_window", set.Window)
 	return k.Run(ctx)
 }
